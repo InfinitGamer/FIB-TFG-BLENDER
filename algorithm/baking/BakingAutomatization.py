@@ -1,6 +1,6 @@
 import bpy
 
-class SimpleOperator(bpy.types.Operator):
+class AutomateBaking(bpy.types.Operator):
     """Tooltip"""
     bl_idname = "op.simple_operator"
     bl_label = "Simple Object Operator"
@@ -14,13 +14,9 @@ class SimpleOperator(bpy.types.Operator):
     def get_face_material(model: bpy.types.Mesh, index):
         material = model.materials[index]
         return material
+
     @classmethod
-    def bake_model(model: bpy.types.Object):
-        
-        
-        #creamos la imagen destino del bakingç
-        image = SimpleOperator.get_image(f"{model.name}_baked")
-        
+    def prepare_model(model:bpy.types.Object, image: bpy.types.Image):
         #extraemos la mesh del modelo
         mesh: bpy.types.Mesh = model.data
         mesh.mat
@@ -30,7 +26,7 @@ class SimpleOperator(bpy.types.Operator):
             material_index = face.material_index
             
             #extraemos el material
-            material: bpy.types.Material = SimpleOperator.get_face_material(mesh,material_index)
+            material: bpy.types.Material = AutomateBaking.get_face_material(mesh,material_index)
             material_baked_name = f"{material.name}_baked"
 
             #comprobamos si el material ha sido ya previamente tratado
@@ -61,7 +57,7 @@ class SimpleOperator(bpy.types.Operator):
                 #dejamos seleccionado el nodo que acabamos de crear
                 image_texture_node.select = True
 
-                #dejamos activo este nodo (ver si este es necesario)
+                #dejamos activo este nodo
                 nodes.active = image_texture_node
 
                 #cogemos y añadimos el material a la lista de materiales del objeto
@@ -75,17 +71,60 @@ class SimpleOperator(bpy.types.Operator):
             else:
                 #si ya existe, únicamente hay que poner ese material como el activo de la cara
                 face.material_index = index
+    @classmethod
+    def configure_bake():
+        #para hacer bake seleccionamos un motor (de momento lo dejamos en cycles)
+        bpy.context.scene.render.engine = 'CYCLES'
 
-                
+        #en el caso del motor gráfico de CYCLES se puede elegir si lo hace la CPU o GPU
+        if bpy.context.scene.render.engine == 'CYCLES':
+            bpy.context.scene.cycles.device = "GPU"
+        
+    
+    @classmethod
+    def execute_bake(model: bpy.types.Object):
+        #configuramos el bake
+        AutomateBaking.configure_bake()
 
+        #ponemos el modelo como el objeto activo
+        bpy.context.active_object = model
+        bpy.ops.object.bake(
+            type="DIFFUSE",
+            pass_filter={"COLOR"},
+            margin=None,
+            margin_type=None,
+            use_clear=True
+        )
 
+    @classmethod
+    def save_image(image: bpy.types.Image):
+        image.filepath_raw = f"C:\\Users\\jerem\\Desktop\\estudios\\TFG\\{image.name}.png"
+        image.file_format ="PNG"
+        image.save()
+    
+    @classmethod
+    def bake_model(model: bpy.types.Object):
+        
+        
+        #creamos la imagen destino del bakingç
+        image = AutomateBaking.get_image(f"{model.name}_baked")
+        
+        #preparamos el objeto
+        AutomateBaking.prepare_model(model, image)
 
+        #ejecutamos bake
+        AutomateBaking.execute_bake(model)
+
+        #guardamos bake
+        AutomateBaking.save_image(image)
 
 
     @classmethod
-    def bake_list(list_Models: [bpy.types.Object]):
+    def bake_list(list_Models: list[bpy.types.Object]):
         for model in list_Models:
-            SimpleOperator.bake_model(model)
+            AutomateBaking.bake_model(model)
 
     def execute(self, context):
+        #faltaría seleccionar los elementos a hacer con baking
+        #de momento podemos utilizar los elementos seleccionados
         return {'FINISHED'}
