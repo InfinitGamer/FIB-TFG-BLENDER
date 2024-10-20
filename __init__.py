@@ -16,12 +16,21 @@ ADDON_FOLDER_PATH = os.path.dirname(__file__)
 sys.path.append(ADDON_FOLDER_PATH)
 
 
-import algorithm.baking.BakingAutomatization as BK
+import algorithms.baking.BakingAutomatization as BK
+import structures.ObjectName as ObjN
+import structures.BakingSettings as BS
 def register():
-    bpy.utils.register_class(BK.AutomateBaking)
+    bpy.utils.register_class(ObjN.ObjectName)
+    bpy.utils.register_class(BS.BakingSettings)
+    bpy.types.Scene.autobake_settings = bpy.props.PointerProperty(type=BS.BakingSettings)
 
+    bpy.utils.register_class(BK.AutomateBaking)
+    
 def unregister():
     bpy.utils.unregister_class(BK.AutomateBaking)
 
+    del bpy.types.Scene.autobake_settings 
+    bpy.utils.register_class(BS.BakingSettings)
+    bpy.utils.register_class(ObjN.ObjectName)
 if __name__ == "__main__":
     register()
