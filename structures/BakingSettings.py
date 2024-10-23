@@ -19,15 +19,15 @@ class BakingSettings(bpy.types.PropertyGroup):
     device: bpy.props.EnumProperty(
         items=[
             ("GPU", "Gpu", "GPU Device"),
-            ("CPU", "Cpu", "Cpu Device"),
+            ("CPU", "Cpu", "CPU Device"),
         ],
         default="CPU"
     )
-    width: bpy.props.IntProperty(min=1, default=1)
+    width: bpy.props.IntProperty(min=1, default=1, subtype="PIXEL")
 
-    height: bpy.props.IntProperty(min=1, default=1)
+    height: bpy.props.IntProperty(min=1, default=1, subtype="PIXEL")
     
-    margin: bpy.props.IntProperty(min=0, default=0)
+    margin: bpy.props.IntProperty(min=0, default=0, subtype="PIXEL")
     
     margin_type: bpy.props.EnumProperty(
         items=[

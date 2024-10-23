@@ -19,15 +19,15 @@ class AutomateBaking(bpy.types.Operator):
     device: bpy.props.EnumProperty(
         items=[
             ("GPU", "Gpu", "GPU Device"),
-            ("CPU", "Cpu", "Cpu Device"),
+            ("CPU", "Cpu", "CPU Device"),
         ],
         default="CPU"
     ) # type: ignore
-    width: bpy.props.IntProperty(min=1, default=1) # type: ignore
+    width: bpy.props.IntProperty(min=1, default=1, subtype="PIXEL") # type: ignore
 
-    height: bpy.props.IntProperty(min=1, default=1) # type: ignore
+    height: bpy.props.IntProperty(min=1, default=1, subtype="PIXEL") # type: ignore
     
-    margin: bpy.props.IntProperty(min=0, default=0) # type: ignore
+    margin: bpy.props.IntProperty(min=0, default=0, subtype="PIXEL") # type: ignore
     
     margin_type: bpy.props.EnumProperty(
         items=[
