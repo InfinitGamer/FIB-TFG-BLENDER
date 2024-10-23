@@ -1,7 +1,7 @@
 import bpy
 
 class DeleteObject(bpy.types.Operator):
-    bl_idname = "UI.delete_object"
+    bl_idname = "ui.delete_object"
     bl_label = "Delete object item"
     
     def execute(self, context):

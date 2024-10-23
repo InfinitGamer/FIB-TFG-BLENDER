@@ -3,11 +3,11 @@ from bpy.types import bpy_prop_collection
 from structures.ObjectName import ObjectName
 
 class AddObject(bpy.types.Operator):
-    """Añadir el objeto seleccionado a la lista"""
-    bl_idname = "UI.add_object"
+    
+    bl_idname = "ui.add_object"
     bl_label = "Add Selected Object"
     @staticmethod
-    def exists_in_collection(collection: bpy_prop_collection[ObjectName], name: str):
+    def exists_in_collection(collection: bpy.types.CollectionProperty, name: str):
         #miramos existe el nombre en la colleción
         return any(item.object_name == name for item in collection)
     
@@ -16,10 +16,10 @@ class AddObject(bpy.types.Operator):
         scene = context.scene
 
         #extraemos todos los objetos seleccionados
-        selected_objects = context.selectable_objects
+        selected_objects = context.selected_objects
 
         #extraemos la lista que contiene los objetos a hacer bake
-        object_name_collection: bpy_prop_collection[ObjectName] = scene.autobake_settings.objects
+        object_name_collection: bpy.types.CollectionProperty = scene.autobake_settings.objects
         
         #miramos si hay elementos seleccionados
         if selected_objects:
