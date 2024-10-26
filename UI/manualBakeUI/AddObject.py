@@ -27,7 +27,9 @@ class AddObject(bpy.types.Operator):
             #por cada objeto lo añadimos si no han sido añadidos en algún momento
             for object in selected_objects:
 
-                if not AddObject.exists_in_collection(object_name_collection, object.name):
+                if (not AddObject.exists_in_collection(object_name_collection, object.name) and 
+                    scene.objects[object.name].type =='MESH'):
+                    
                     new_item = object_name_collection.add()
                     new_item.object_name = object.name
                     

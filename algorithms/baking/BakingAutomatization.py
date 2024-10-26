@@ -40,12 +40,17 @@ class AutomateBaking(bpy.types.Operator):
         items=[
             ("DIRECT","Direct", "Direct light"),
             ("INDIRECT","Indirect", "Indirect light"),
-            ("COLOR","Color", "Base Color"),
+            ("COLOR","Color", "Base color"),
+            ("EMIT", "Emit","Emit contribution"),
+            ("DIFFUSE","Diffuse", "Diffuse contribution"),
+            ("GLOSSY","Glossy", "Glossy contribution"),
+            ("TRANSMISSION", "Transmission", "Transmission Contribution")
         ],
         options={'ENUM_FLAG'}
     ) # type: ignore
 
-    path: bpy.props.StringProperty() # type: ignore
+
+    path: bpy.props.StringProperty(subtype="DIR_PATH") # type: ignore
     
     @staticmethod
     def get_image(name: str, width: int, height: int):
