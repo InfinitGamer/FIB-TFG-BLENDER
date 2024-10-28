@@ -33,6 +33,7 @@ class AddObject(bpy.types.Operator):
                     new_item = object_name_collection.add()
                     new_item.object_name = object.name
                     
+                    
             self.report({'INFO'}, f"Added {object.name} to the list")
         else:
             self.report({'WARNING'}, "No active object selected")

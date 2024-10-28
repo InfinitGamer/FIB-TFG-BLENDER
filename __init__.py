@@ -22,6 +22,7 @@ import structures.ObjectName as ObjN
 import structures.BakingSettings as BS
 import structures.UIBakeSettings as UIB
 import UI.AddonPanel as UIAP
+import UI.manualBakeUI.BakeObject as UIBO
 import UI.manualBakeUI.AddObject as UIAO
 import UI.manualBakeUI.DeleteObject as UIDO
 import UI.manualBakeUI.ObjectList as UIOL
@@ -42,6 +43,7 @@ def register():
     bpy.utils.register_class(UIAP.AddonPanel)
     bpy.utils.register_class(UIMBP.ManualBakePanel)
 
+    bpy.utils.register_class(UIBO.BakeObject)
     bpy.utils.register_class(UIAO.AddObject)
     bpy.utils.register_class(UIDO.DeleteObject)
     bpy.utils.register_class(UIOL.ObjectList)
@@ -77,6 +79,7 @@ def unregister():
     bpy.utils.unregister_class(UIOL.ObjectList)
     bpy.utils.unregister_class(UIDO.DeleteObject)
     bpy.utils.unregister_class(UIAO.AddObject)
+    bpy.utils.unregister_class(UIBO.BakeObject)
 
     bpy.utils.unregister_class(UIMBP.ManualBakePanel)
     bpy.utils.unregister_class(UIAP.AddonPanel)

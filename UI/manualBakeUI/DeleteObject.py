@@ -17,5 +17,9 @@ class DeleteObject(bpy.types.Operator):
         #si el indice es mayor o igual a 0 eliminamos el elemento en la posicion
         #del indice
         if index >= 0:
+            name = object_name_list[index].object_name
+
             object_name_list.remove(index)
+            
+
         return {"FINISHED"}

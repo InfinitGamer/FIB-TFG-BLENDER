@@ -129,8 +129,9 @@ class AutomateBaking(bpy.types.Operator):
         bpy.context.scene.cycles.device = device
         
     
-    @staticmethod
-    def execute_bake(model: bpy.types.Object,
+    
+    def execute_bake(self,
+                     model: bpy.types.Object,
                      bake_type: str,
                      margin: int,
                      margin_type: str,
@@ -139,15 +140,18 @@ class AutomateBaking(bpy.types.Operator):
         
         #ponemos el modelo como el objeto activo
         bpy.context.view_layer.objects.active = model
-        bpy.ops.object.bake(
-            type=bake_type,
-            pass_filter=pass_filter,
-            margin=margin,
-            margin_type=margin_type,
-            use_clear=True,
-            save_mode="EXTERNAL"
-        )
-
+        try:
+            bpy.ops.object.bake(
+                type=bake_type,
+                pass_filter=pass_filter,
+                margin=margin,
+                margin_type=margin_type,
+                use_clear=True,
+                save_mode="EXTERNAL"
+            )
+            self.report({"INFO"},f"{model.name} was baked successfully")
+        except Exception:
+            self.report({"ERROR"},f"{model.name} was not baked due to an error")
     @staticmethod
     def save_image(image: bpy.types.Image, path: str):
         image.filepath_raw = f"{path}\\{image.name}.png"
@@ -173,8 +177,9 @@ class AutomateBaking(bpy.types.Operator):
 
         
 
-    @staticmethod
-    def bake_model(model: bpy.types.Object,
+    
+    def bake_model(self,
+                   model: bpy.types.Object,
                    bake_type: str,
                    device: str,
                    path: str,
@@ -185,16 +190,17 @@ class AutomateBaking(bpy.types.Operator):
                    pass_filter: set[str]):
         
         
-        #creamos la imagen destino del bakingç
-        image = AutomateBaking.get_image(f"{model.name}_baked", width, height)
+        #creamos la imagen destino del baking
+        image = AutomateBaking.get_image(f"{model.name}_{bake_type.lower()}_baked", width, height)
         
         #preparamos el objeto
         AutomateBaking.prepare_model(model, image)
 
         #configuramos el bake
         AutomateBaking.configure_bake(device)
+
         #ejecutamos bake
-        AutomateBaking.execute_bake(model,
+        self.execute_bake(model,
                                     bake_type,
                                     margin,
                                     margin_type,
@@ -206,8 +212,9 @@ class AutomateBaking(bpy.types.Operator):
         AutomateBaking.restore_materials(model)
 
 
-    @staticmethod
-    def bake_list(list_Models: list[bpy.types.Object],
+    
+    def bake_list(self,
+                  list_Models: list[bpy.types.Object],
                   bake_type: str,
                   device: str,
                   path: str,
@@ -218,16 +225,16 @@ class AutomateBaking(bpy.types.Operator):
                   pass_filter: set[str]
                   ):
         for model in list_Models:
-            AutomateBaking.bake_model(model,
-                                    bake_type,
-                                    device,
-                                    path,
-                                    width,
-                                    height,
-                                    margin,
-                                    margin_type,
-                                    pass_filter
-                                    )
+            self.bake_model(model,
+                            bake_type,
+                            device,
+                            path,
+                            width,
+                            height,
+                            margin,
+                            margin_type,
+                            pass_filter
+                            )
 
     def execute(self, context):
         #faltaría seleccionar los elementos a hacer con baking
@@ -250,7 +257,7 @@ class AutomateBaking(bpy.types.Operator):
         margin_type: str = self.margin_type
         pass_filter: set[str] = self.pass_filter
         
-        AutomateBaking.bake_list(object_list,
+        self.bake_list(object_list,
                                  bake_type,
                                  device,
                                  path,
