@@ -9,4 +9,5 @@ class AutomaticBakePanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
+        layout.operator("ui.bake_object",text="Bake")
         

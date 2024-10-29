@@ -38,7 +38,8 @@ import UI.automaticBakeUI.AutomaticBakePanel as UIABP
 import UI.automaticBakeUI.BakeTypePanelAuto as UIBTA
 import UI.automaticBakeUI.ObjectsPanelAuto as UIOPA
 import UI.automaticBakeUI.DirectoryPanelAuto as UIDPA
-
+import UI.automaticBakeUI.SetAutomaticSettings as UISAS
+import UI.automaticBakeUI.AutomaticPreferencesPanel as UIAPP
 # Lista de clases para registro y desregistro
 classes = [
     ObjN.ObjectName,
@@ -58,10 +59,12 @@ classes = [
     UIMP.MarginPanel,
     UIDEP.DirectoryPanel,
     UIABP.AutomaticBakePanel,
+    UISAS.SetAutomaticSettings,
     UIBTA.BakeTypePanelAuto,
     UIOPA.ObjectsPanelAuto,
     UIDPA.DirectoryPanelAuto,
     BK.AutomateBaking,
+    UIAPP.AutomaticPreferencesPanel
 ]
 
 def register():
