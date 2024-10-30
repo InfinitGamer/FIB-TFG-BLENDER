@@ -37,15 +37,12 @@ class BakingSettings(bpy.types.PropertyGroup):
     )
     path: bpy.props.StringProperty()
 
-    pass_filter: bpy.props.EnumProperty(
-        items=[
-            ("DIRECT","Direct", "Direct light"),
-            ("INDIRECT","Indirect", "Indirect light"),
-            ("COLOR","Color", "Base color"),
-            ("EMIT", "Emit","Emit contribution"),
-            ("DIFFUSE","Diffuse", "Diffuse contribution"),
-            ("GLOSSY","Glossy", "Glossy contribution"),
-            ("TRANSMISSION", "Transmission", "Transmission Contribution")
-        ],
-        options={'ENUM_FLAG'}
-    ) # type: ignore
+    
+
+    use_direct: bpy.props.BoolProperty(default=True)
+    use_indirect: bpy.props.BoolProperty(default=True)
+    use_color: bpy.props.BoolProperty(default=True)
+    use_emit: bpy.props.BoolProperty(default=True)
+    use_diffuse: bpy.props.BoolProperty(default=True)
+    use_glossy: bpy.props.BoolProperty(default=True)
+    use_transmission: bpy.props.BoolProperty(default=True)

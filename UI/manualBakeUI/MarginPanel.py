@@ -21,4 +21,6 @@ class MarginPanel(bpy.types.Panel):
         margin_type.prop(autobake_settings,"margin_type", text="Margin Type")
 
         margin = layout.row()
-        margin.prop(autobake_settings,"margin", text="Margin")
+        split = margin.split(factor=0.2)
+        split.label(text="Margin:")
+        split.prop(autobake_settings,"margin", text="")

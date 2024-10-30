@@ -16,10 +16,36 @@ class BakeObject(bpy.types.Operator):
         width = autobake_settings.width
         height= autobake_settings.height
         path= autobake_settings.path
-        pass_filter= autobake_settings.pass_filter
         margin = autobake_settings.margin
         margin_type = autobake_settings.margin_type
+        pass_filter = set()
+        pass_filter_values = ["COMBINED", "GLOSSY","DIFFUSE"]
+        if autobake_settings.bake_type in pass_filter_values:
 
+            if autobake_settings.use_direct:
+                pass_filter = pass_filter | {"DIRECT"}
+            
+            if autobake_settings.use_indirect:
+                pass_filter = pass_filter | {"INDIRECT"}
+            
+            if autobake_settings.use_color:
+                pass_filter = pass_filter | {"COLOR"}
+        
+            
+            if autobake_settings.bake_type == "COMBINED":
+                    
+                    if autobake_settings.use_diffuse:
+                        pass_filter = pass_filter | {"DIFFUSE"}
+
+                    if autobake_settings.use_glossy:
+                        pass_filter = pass_filter | {"GLOSSY"}
+                    
+                    if autobake_settings.use_transmission:
+                        pass_filter = pass_filter | {"TRANSMISSION"}
+                    
+                    if autobake_settings.use_emit:
+                        pass_filter = pass_filter | {"EMIT"}
+            
         bpy.ops.scene.autobake(device=device,
                                 bake_type=bake_type,
                                 width = width,

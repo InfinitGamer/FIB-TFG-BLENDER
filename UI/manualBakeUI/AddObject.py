@@ -32,10 +32,11 @@ class AddObject(bpy.types.Operator):
                     
                     new_item = object_name_collection.add()
                     new_item.object_name = object.name
-                    
-                    
-            self.report({'INFO'}, f"Added {object.name} to the list")
+                    self.report({'INFO'}, f"Added {object.name} to the list")
+                
+                elif scene.objects[object.name].type !='MESH':
+                    self.report({'WARNING'}, f"{object.name} not added because is not a mesh object")
         else:
-            self.report({'WARNING'}, "No active object selected")
+            self.report({'WARNING'}, "No objects selected")
         
         return {'FINISHED'}

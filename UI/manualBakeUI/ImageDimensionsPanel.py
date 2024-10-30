@@ -16,9 +16,13 @@ class ImageDimensionsPanel(bpy.types.Panel):
         autobake_settings = scene.autobake_settings
     
         width_settings = layout.row()
-        width_settings.prop(autobake_settings,"width",text="Width")
+        split_w = width_settings.split(factor=0.2)
+        split_w.label(text="Width:")
+        split_w.prop(autobake_settings,"width",text="")
         
         height_settings = layout.row()
-        height_settings.prop(autobake_settings,"height",text="Height")
+        split_h = height_settings.split(factor=0.2)
+        split_h.label(text="Height:")
+        split_h.prop(autobake_settings,"height",text="")
         
     

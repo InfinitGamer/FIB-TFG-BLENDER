@@ -27,14 +27,41 @@ class BakeTypePanel(bpy.types.Panel):
         if autobake_settings.bake_type in pass_filter_values:
             pass_filter = layout.column()
             pass_filter.label(text="Lighting")
-            pass_filter.prop_enum(autobake_settings,"pass_filter",value="DIRECT",text="Direct")
-            pass_filter.prop_enum(autobake_settings,"pass_filter",value="INDIRECT",text="Indirect")
-            pass_filter.prop_enum(autobake_settings,"pass_filter",value="COLOR",text="Color")
+
+            row = pass_filter.row()
+            split = row.split(factor=0.3)
+            split.label(text="")
+            split.prop(autobake_settings,"use_direct",text="Direct")
+
+            row = pass_filter.row()
+            split = row.split(factor=0.3)
+            split.label(text="")
+            split.prop(autobake_settings,"use_indirect",text="Indirect")
+            
+            row = pass_filter.row()
+            split = row.split(factor=0.3)
+            split.label(text="")
+            split.prop(autobake_settings,"use_color",text="Color")
             
             if autobake_settings.bake_type == "COMBINED":
                 pass_filter.label(text="Contributions")
-                pass_filter.prop_enum(autobake_settings,"pass_filter",value="DIFFUSE",text="Diffuse")
-                pass_filter.prop_enum(autobake_settings,"pass_filter",value="GLOSSY",text="Glossy")
-                pass_filter.prop_enum(autobake_settings,"pass_filter",value="TRANSMISSION",text="Transmission")
-                pass_filter.prop_enum(autobake_settings,"pass_filter",value="EMIT",text="Emit")
+                row = pass_filter.row()
+                split = row.split(factor=0.3)
+                split.label(text="")
+                split.prop(autobake_settings,"use_diffuse",text="Diffuse")
+
+                row = pass_filter.row()
+                split = row.split(factor=0.3)
+                split.label(text="")
+                split.prop(autobake_settings,"use_glossy",text="Glossy")
+
+                row = pass_filter.row()
+                split = row.split(factor=0.3)
+                split.label(text="")
+                split.prop(autobake_settings,"use_transmission",text="Transmission")
+                
+                row = pass_filter.row()
+                split = row.split(factor=0.3)
+                split.label(text="")
+                split.prop(autobake_settings,"use_emit",text="Emit")
         
