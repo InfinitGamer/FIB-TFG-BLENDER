@@ -21,6 +21,8 @@ import algorithms.baking.BakingAutomatization as BK
 import structures.ObjectName as ObjN
 import structures.BakingSettings as BS
 import structures.UIBakeSettings as UIB
+import structures.PolygonsStructure as PS
+import structures.ObjectInfo as OI
 import UI.AddonPanel as UIAP
 import UI.manualBakeUI.BakeObject as UIBO
 import UI.manualBakeUI.AddObject as UIAO
@@ -45,6 +47,8 @@ classes = [
     ObjN.ObjectName,
     BS.BakingSettings,
     UIB.UIBakeSettings,
+    PS.PolygonsStructure,
+    OI.ObjectInfo,
     UIAP.AddonPanel,
     UIMBP.ManualBakePanel,
     UIBO.BakeObject,
@@ -73,8 +77,10 @@ def register():
 
     bpy.types.Scene.UIbake_settings = bpy.props.PointerProperty(type=UIB.UIBakeSettings)
     bpy.types.Scene.autobake_settings = bpy.props.PointerProperty(type=BS.BakingSettings)
+    bpy.types.Scene.switch_settings = bpy.props.CollectionProperty(type=OI.ObjectInfo)
 
 def unregister():
+    del bpy.types.Scene.switch_settings
     del bpy.types.Scene.autobake_settings
     del bpy.types.Scene.UIbake_settings
 

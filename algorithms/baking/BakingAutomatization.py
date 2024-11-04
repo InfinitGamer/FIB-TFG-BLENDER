@@ -1,5 +1,5 @@
 import bpy
-
+import os
 class AutomateBaking(bpy.types.Operator):
     
     bl_idname = "scene.autobake"
@@ -52,9 +52,60 @@ class AutomateBaking(bpy.types.Operator):
 
 
     path: bpy.props.StringProperty(subtype="DIR_PATH") # type: ignore
-    
+
     @staticmethod
-    def get_image(name: str, width: int, height: int):
+    def create_bake_material(model: bpy.types.Object, image: bpy.types.Image):
+        
+        #cogemos el nombre de la imagen
+        material_name: str = image.name
+        
+        #creamos material
+        material_bake: bpy.types.Material = bpy.data.materials.new(name=material_name)
+        
+        #habilitamos el uso de nodos
+        material_bake.use_nodes = True
+
+        #limpiamos todos los nodos que se han creado al construirse el material
+        tree_node = material_bake.node_tree
+        tree_node.nodes.clear()
+        tree_node.links.clear()
+
+        #creamos nodo textura
+        texture_node : bpy.types.ShaderNodeTexImage = tree_node.nodes.new(type="ShaderNodeTexImage")
+
+        #asignamos la imagen al nodo
+        texture_node.image = image
+        
+        #creamos nodo output
+
+        output_node: bpy.types.ShaderNodeOutputMaterial = tree_node.nodes.new(type="ShaderNodeOutputMaterial")
+        output_node.location =(150,0)
+
+        #creamos link
+        tree_node.links.new(
+            texture_node.outputs["Color"],
+            output_node.inputs["Surface"]
+        )
+
+        #introducimos material en el modelo
+        model.data.materials.append(material_bake)
+        #decimos en que posicion del material está
+        return len(model.data.materials) - 1
+
+    @staticmethod
+    def count_files_with_prefix(path, prefix):
+        try:
+            # List of files that start with the prefix
+            files_with_prefix = [f for f in os.listdir(path) if f.startswith(prefix)]
+            return len(files_with_prefix)
+        except FileNotFoundError:
+            return 0
+        
+    @staticmethod
+    def get_image(name: str, path: str, width: int, height: int):
+        number_ocurrences = AutomateBaking.count_files_with_prefix(path, name)
+        if number_ocurrences > 0:
+            name = name + f".{number_ocurrences}"
         #creamos imagen
         image: bpy.types.Image = bpy.data.images.new(name,width,height)
         return image
@@ -151,8 +202,10 @@ class AutomateBaking(bpy.types.Operator):
                 save_mode="EXTERNAL"
             )
             self.report({"INFO"},f"{model.name} was baked successfully")
-        except Exception:
+        except Exception as e:
             self.report({"ERROR"},f"{model.name} was not baked due to an error")
+            raise e
+        
     @staticmethod
     def save_image(image: bpy.types.Image, path: str):
         image.filepath_raw = f"{path}\\{image.name}.png"
@@ -192,23 +245,30 @@ class AutomateBaking(bpy.types.Operator):
         
         
         #creamos la imagen destino del baking
-        image = AutomateBaking.get_image(f"{model.name}_{bake_type.lower()}_baked", width, height)
+        image = AutomateBaking.get_image(f"{model.name}_{bake_type.lower()}_baked", path, width, height)
         
         #preparamos el objeto
         AutomateBaking.prepare_model(model, image)
 
         #configuramos el bake
         AutomateBaking.configure_bake(device)
+        try:
+            #ejecutamos bake
+            self.execute_bake(model,
+                              bake_type,
+                              margin,
+                              margin_type,
+                              pass_filter)
 
-        #ejecutamos bake
-        self.execute_bake(model,
-                                    bake_type,
-                                    margin,
-                                    margin_type,
-                                    pass_filter)
+            #guardamos bake
+            AutomateBaking.save_image(image, path)
 
-        #guardamos bake
-        AutomateBaking.save_image(image, path)
+            #creamos material bake
+            AutomateBaking.create_bake_material(model,image)
+
+        except Exception:
+            pass
+
         #restauramos los materiales originales
         AutomateBaking.restore_materials(model)
 

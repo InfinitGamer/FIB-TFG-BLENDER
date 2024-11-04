@@ -6,6 +6,7 @@ class AutomaticPreferencesPanel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_category = "FIB-TFG-BLENDER"
     bl_parent_id="AutomaticBakePanel"
+     
 
     @staticmethod
     def get_button(scene: bpy.types.Scene,
