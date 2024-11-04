@@ -11,6 +11,7 @@ class BakingSettings(bpy.types.PropertyGroup):
             ("AO", "Ao", "Ambient Occlusion"),
             ("EMIT", "Emit", "Emit Bake"),
             ("ENVIRONMENT", "Environment", "Environment Bake"),
+            ("ROUGHNESS", "Roughness", "Roughness Bake"),
             ("DIFFUSE", "Diffuse", "Diffuse Bake"),
             ("GLOSSY", "Glossy", "Glossy Bake"),
         ],
