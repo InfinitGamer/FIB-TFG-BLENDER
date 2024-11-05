@@ -1,5 +1,7 @@
 import bpy
 import os
+from structures.ObjectInfo import ObjectInfo
+from structures.PolygonsStructure import PolygonsStructure
 class AutomateBaking(bpy.types.Operator):
     
     bl_idname = "scene.autobake"
@@ -100,12 +102,21 @@ class AutomateBaking(bpy.types.Operator):
             return len(files_with_prefix)
         except FileNotFoundError:
             return 0
-        
+    
+    @staticmethod
+    def attach_material_to_polygons(model_setting: ObjectInfo, material_index: int):
+        for polygon in model_setting.polygons: 
+            polygon.bake_material_index = material_index
+    
     @staticmethod
     def get_image(name: str, path: str, width: int, height: int):
+        #comprobamos todas la ocurrencias en el fichero "path" que comienzan por "name"
         number_ocurrences = AutomateBaking.count_files_with_prefix(path, name)
+
+        #si hay ocurrencias, ponemos un numero para diferenciarla de las demás
         if number_ocurrences > 0:
             name = name + f".{number_ocurrences}"
+        
         #creamos imagen
         image: bpy.types.Image = bpy.data.images.new(name,width,height)
         return image
@@ -115,15 +126,19 @@ class AutomateBaking(bpy.types.Operator):
         return material
 
     @staticmethod
-    def prepare_model(model:bpy.types.Object, image: bpy.types.Image):
-        set_index_materials :set ={}
+    def prepare_model(model:bpy.types.Object, model_setting: ObjectInfo ,image: bpy.types.Image):
+        model_setting.object_name = model.name
         #extraemos la mesh del modelo
         mesh: bpy.types.Mesh = model.data
         #nos recorremos cada uno de los poligonos para setearlos
         for face in mesh.polygons:
             #extraemos el indice del material
             material_index = face.material_index
-            
+
+            polygon_setting: PolygonsStructure = model_setting.polygons.add()
+            polygon_setting.index = face.index
+            polygon_setting.set_vertices(face.vertices) 
+            polygon_setting.original_material_index = material_index
             #extraemos el material
             material: bpy.types.Material = AutomateBaking.get_model_material(mesh,material_index)
             material_baked_name = f"{material.name}_baked"
@@ -241,14 +256,15 @@ class AutomateBaking(bpy.types.Operator):
                    height: int,
                    margin: int,
                    margin_type: str,
-                   pass_filter: set[str]):
+                   pass_filter: set[str],
+                   model_setting: ObjectInfo):
         
-        
+        valid: bool = True
         #creamos la imagen destino del baking
         image = AutomateBaking.get_image(f"{model.name}_{bake_type.lower()}_baked", path, width, height)
         
         #preparamos el objeto
-        AutomateBaking.prepare_model(model, image)
+        AutomateBaking.prepare_model(model, model_setting, image)
 
         #configuramos el bake
         AutomateBaking.configure_bake(device)
@@ -262,17 +278,23 @@ class AutomateBaking(bpy.types.Operator):
 
             #guardamos bake
             AutomateBaking.save_image(image, path)
-
+            
+            #restauramos los materiales originales
+            AutomateBaking.restore_materials(model)
+            
             #creamos material bake
-            AutomateBaking.create_bake_material(model,image)
+            material_baked_index: int = AutomateBaking.create_bake_material(model,image)
+            AutomateBaking.attach_material_to_polygons(model_setting,material_baked_index)
 
         except Exception:
-            pass
+            valid = False
+            #restauramos los materiales originales
+            AutomateBaking.restore_materials(model)
+           
 
-        #restauramos los materiales originales
-        AutomateBaking.restore_materials(model)
+        
 
-
+        return valid
     
     def bake_list(self,
                   list_Models: list[bpy.types.Object],
@@ -283,10 +305,13 @@ class AutomateBaking(bpy.types.Operator):
                   height: int,
                   margin: int,
                   margin_type: str,
-                  pass_filter: set[str]
+                  pass_filter: set[str],
+                  switch_settings: bpy.types.CollectionProperty
                   ):
         for model in list_Models:
-            self.bake_model(model,
+            model_setting = switch_settings.add()
+
+            valid = self.bake_model(model,
                             bake_type,
                             device,
                             path,
@@ -294,8 +319,14 @@ class AutomateBaking(bpy.types.Operator):
                             height,
                             margin,
                             margin_type,
-                            pass_filter
+                            pass_filter,
+                            model_setting
                             )
+            
+            if not valid:
+                size = len(switch_settings)
+                switch_settings.pop(size-1)
+
 
     def execute(self, context):
         #faltaría seleccionar los elementos a hacer con baking
@@ -317,7 +348,7 @@ class AutomateBaking(bpy.types.Operator):
         margin : int = self.margin
         margin_type: str = self.margin_type
         pass_filter: set[str] = self.pass_filter
-        
+        switch_structure = scene.switch_settings
         self.bake_list(object_list,
                                  bake_type,
                                  device,
@@ -326,5 +357,6 @@ class AutomateBaking(bpy.types.Operator):
                                  height,
                                  margin,
                                  margin_type,
-                                 pass_filter)
+                                 pass_filter,
+                                 switch_structure)
         return {'FINISHED'}

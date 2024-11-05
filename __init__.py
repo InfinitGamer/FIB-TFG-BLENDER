@@ -18,11 +18,13 @@ ADDON_FOLDER_PATH = os.path.dirname(__file__)
 sys.path.append(ADDON_FOLDER_PATH)
 
 import algorithms.baking.BakingAutomatization as BK
+import algorithms.switch.SwitchOperator as SO
 import structures.ObjectName as ObjN
 import structures.BakingSettings as BS
 import structures.UIBakeSettings as UIB
 import structures.PolygonsStructure as PS
 import structures.ObjectInfo as OI
+import structures.UISwitchSettings as UISS
 import UI.AddonPanel as UIAP
 import UI.manualBakeUI.BakeObject as UIBO
 import UI.manualBakeUI.AddObject as UIAO
@@ -42,7 +44,8 @@ import UI.automaticBakeUI.ObjectsPanelAuto as UIOPA
 import UI.automaticBakeUI.DirectoryPanelAuto as UIDPA
 import UI.automaticBakeUI.SetAutomaticSettings as UISAS
 import UI.automaticBakeUI.AutomaticPreferencesPanel as UIAPP
-# Lista de clases para registro y desregistro
+import UI.SwitchUI.SwitchButton as UISB
+import UI.SwitchUI.SwitchPanel as UISP
 classes = [
     ObjN.ObjectName,
     BS.BakingSettings,
@@ -68,7 +71,11 @@ classes = [
     UIOPA.ObjectsPanelAuto,
     UIDPA.DirectoryPanelAuto,
     BK.AutomateBaking,
-    UIAPP.AutomaticPreferencesPanel
+    UIAPP.AutomaticPreferencesPanel,
+    UISS.UISwichSettings,
+    SO.SwitchOperator,
+    UISB.SwitchButton,
+    UISP.SwitchPanel
 ]
 
 def register():
@@ -78,8 +85,10 @@ def register():
     bpy.types.Scene.UIbake_settings = bpy.props.PointerProperty(type=UIB.UIBakeSettings)
     bpy.types.Scene.autobake_settings = bpy.props.PointerProperty(type=BS.BakingSettings)
     bpy.types.Scene.switch_settings = bpy.props.CollectionProperty(type=OI.ObjectInfo)
+    bpy.types.Scene.UIswitch_settings = bpy.props.PointerProperty(type=UISS.UISwichSettings)
 
 def unregister():
+    del bpy.types.Scene.UIswitch_settings
     del bpy.types.Scene.switch_settings
     del bpy.types.Scene.autobake_settings
     del bpy.types.Scene.UIbake_settings

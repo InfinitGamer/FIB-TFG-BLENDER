@@ -45,7 +45,10 @@ class BakeObject(bpy.types.Operator):
                     
                     if autobake_settings.use_emit:
                         pass_filter = pass_filter | {"EMIT"}
-            
+        if path is None or path == "":
+            self.report({"ERROR_INVALID_INPUT"},"There is no path to store baking results")
+            return {"FINISHED"}
+        
         bpy.ops.scene.autobake(device=device,
                                 bake_type=bake_type,
                                 width = width,
