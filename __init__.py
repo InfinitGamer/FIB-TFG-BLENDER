@@ -46,6 +46,7 @@ import UI.automaticBakeUI.SetAutomaticSettings as UISAS
 import UI.automaticBakeUI.AutomaticPreferencesPanel as UIAPP
 import UI.SwitchUI.SwitchButton as UISB
 import UI.SwitchUI.SwitchPanel as UISP
+
 classes = [
     ObjN.ObjectName,
     BS.BakingSettings,
@@ -75,17 +76,23 @@ classes = [
     UISS.UISwichSettings,
     SO.SwitchOperator,
     UISB.SwitchButton,
-    UISP.SwitchPanel
+    UISP.SwitchPanel,
 ]
+
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
     bpy.types.Scene.UIbake_settings = bpy.props.PointerProperty(type=UIB.UIBakeSettings)
-    bpy.types.Scene.autobake_settings = bpy.props.PointerProperty(type=BS.BakingSettings)
+    bpy.types.Scene.autobake_settings = bpy.props.PointerProperty(
+        type=BS.BakingSettings
+    )
     bpy.types.Scene.switch_settings = bpy.props.CollectionProperty(type=OI.ObjectInfo)
-    bpy.types.Scene.UIswitch_settings = bpy.props.PointerProperty(type=UISS.UISwichSettings)
+    bpy.types.Scene.UIswitch_settings = bpy.props.PointerProperty(
+        type=UISS.UISwichSettings
+    )
+
 
 def unregister():
     del bpy.types.Scene.UIswitch_settings
@@ -95,6 +102,7 @@ def unregister():
 
     for cls in reversed(classes):  # Desregistrar en orden inverso
         bpy.utils.unregister_class(cls)
+
 
 if __name__ == "__main__":
     register()

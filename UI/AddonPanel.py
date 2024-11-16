@@ -1,4 +1,6 @@
 import bpy
+
+
 class AddonPanel(bpy.types.Panel):
     bl_idname = "AddonPanel"
     bl_label = "Baking y Parametrización"
@@ -8,4 +10,3 @@ class AddonPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        
