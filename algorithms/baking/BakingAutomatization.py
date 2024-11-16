@@ -61,49 +61,76 @@ class AutomateBaking(bpy.types.Operator):
     path: bpy.props.StringProperty(subtype="DIR_PATH")  # type: ignore
 
     @staticmethod
-    def create_bake_material(model: bpy.types.Object, image: bpy.types.Image):
+    def get_used_materials_index(model: bpy.types.Object) -> set[int]:
 
-        # cogemos el nombre de la imagen
-        material_name: str = image.name
+        used_material : set[int] = set()
+        polygons: bpy.types.MeshPolygons = model.data.polygons
+        for polygon in polygons:
+            used_material.add(polygon.material_index)
+        
+        return used_material
+            
+    @staticmethod
+    def create_bake_material(model: bpy.types.Object, image: bpy.types.Image, bake_type: str) -> dict[int, int]:
+        
+        map_material_original_to_bake : dict[int, int] = {}
 
-        # creamos material
-        material_bake: bpy.types.Material = bpy.data.materials.new(name=material_name)
+        prefix: str = f"_{bake_type.lower()}_baked"
 
-        # habilitamos el uso de nodos
-        material_bake.use_nodes = True
+        used_material_index : set[int] = AutomateBaking.get_used_materials_index(model)
+        
+        for index in used_material_index:
 
-        # limpiamos todos los nodos que se han creado al construirse el material
-        tree_node = material_bake.node_tree
-        tree_node.nodes.clear()
-        tree_node.links.clear()
+            material_original = AutomateBaking.get_model_material(model.data,index)
+            
+            # cogemos el nombre de la imagen
+            material_name: str = material_original.name + prefix
 
-        # creamos nodo textura
-        texture_node: bpy.types.ShaderNodeTexImage = tree_node.nodes.new(
-            type="ShaderNodeTexImage"
-        )
+            # creamos material
+            material_bake: bpy.types.Material = bpy.data.materials.new(name=material_name)
 
-        # asignamos la imagen al nodo
-        texture_node.image = image
+            # habilitamos el uso de nodos
+            material_bake.use_nodes = True
 
-        # creamos nodo output
+            # limpiamos todos los nodos que se han creado al construirse el material
+            tree_node = material_bake.node_tree
+            tree_node.nodes.clear()
+            tree_node.links.clear()
 
-        output_node: bpy.types.ShaderNodeOutputMaterial = tree_node.nodes.new(
-            type="ShaderNodeOutputMaterial"
-        )
-        output_node.location = (150, 0)
+            # creamos nodo textura
+            texture_node: bpy.types.ShaderNodeTexImage = tree_node.nodes.new(
+                type="ShaderNodeTexImage"
+            )
 
-        # creamos link
-        tree_node.links.new(
-            texture_node.outputs["Color"], output_node.inputs["Surface"]
-        )
+            # asignamos la imagen al nodo
+            texture_node.image = image
 
-        # introducimos material en el modelo
-        model.data.materials.append(material_bake)
-        # decimos en que posicion del material está
-        return len(model.data.materials) - 1
+            # creamos nodo output
+
+            output_node: bpy.types.ShaderNodeOutputMaterial = tree_node.nodes.new(
+                type="ShaderNodeOutputMaterial"
+            )
+            output_node.location = (150, 0)
+
+            # creamos link
+            tree_node.links.new(
+                texture_node.outputs["Color"], output_node.inputs["Surface"]
+            )
+
+            # introducimos material en el modelo
+            model.data.materials.append(material_bake)
+
+            # decimos en que posicion del material está
+            material_baked_index = len(model.data.materials) - 1
+            
+            #guardamos el conjunto key value
+            map_material_original_to_bake[index] = material_baked_index
+        
+        #devolvemos el diccionario 
+        return map_material_original_to_bake
 
     @staticmethod
-    def count_files_with_prefix(path, prefix):
+    def count_files_with_prefix(path, prefix) -> int:
         try:
             # List of files that start with the prefix
             files_with_prefix = [f for f in os.listdir(path) if f.startswith(prefix)]
@@ -112,12 +139,14 @@ class AutomateBaking(bpy.types.Operator):
             return 0
 
     @staticmethod
-    def attach_material_to_polygons(model_setting: ObjectInfo, material_index: int):
+    def attach_material_to_polygons(model_setting: ObjectInfo, material_dicc: dict[int, int]):
+
         for polygon in model_setting.polygons:
-            polygon.bake_material_index = material_index
+
+            polygon.bake_material_index = material_dicc.get(polygon.original_material_index)
 
     @staticmethod
-    def get_image(name: str, path: str, width: int, height: int):
+    def get_image(name: str, path: str, width: int, height: int) -> bpy.types.Image:
         # comprobamos todas la ocurrencias en el fichero "path" que comienzan por "name"
         number_ocurrences = AutomateBaking.count_files_with_prefix(path, name)
 
@@ -130,15 +159,19 @@ class AutomateBaking(bpy.types.Operator):
         return image
 
     @staticmethod
-    def get_model_material(model: bpy.types.Mesh, index):
+    def get_model_material(model: bpy.types.Mesh, index) -> bpy.types.Material:
         material = model.materials[index]
         return material
 
     @staticmethod
     def prepare_model(
-        model: bpy.types.Object, model_setting: ObjectInfo, image: bpy.types.Image
+        model: bpy.types.Object, model_setting: ObjectInfo, image: bpy.types.Image, bake_type: str
     ):
+        #añadimos información sobre el modelo en sus settings
         model_setting.object_name = model.name
+        
+        model_setting.bake_type= bake_type
+
         # extraemos la mesh del modelo
         mesh: bpy.types.Mesh = model.data
         # nos recorremos cada uno de los poligonos para setearlos
@@ -285,8 +318,9 @@ class AutomateBaking(bpy.types.Operator):
         )
 
         # preparamos el objeto
-        AutomateBaking.prepare_model(model, model_setting, image)
+        AutomateBaking.prepare_model(model, model_setting, image, bake_type)
 
+        
         # configuramos el bake
         AutomateBaking.configure_bake(device)
         try:
@@ -300,11 +334,11 @@ class AutomateBaking(bpy.types.Operator):
             AutomateBaking.restore_materials(model)
 
             # creamos material bake
-            material_baked_index: int = AutomateBaking.create_bake_material(
-                model, image
+            material_baked_transformation: dict[int,int] = AutomateBaking.create_bake_material(
+                model, image, bake_type
             )
             AutomateBaking.attach_material_to_polygons(
-                model_setting, material_baked_index
+                model_setting, material_baked_transformation
             )
 
         except Exception:
