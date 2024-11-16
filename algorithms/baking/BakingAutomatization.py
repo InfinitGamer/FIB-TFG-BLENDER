@@ -170,7 +170,6 @@ class AutomateBaking(bpy.types.Operator):
         #añadimos información sobre el modelo en sus settings
         model_setting.object_name = model.name
         
-        model_setting.bake_type= bake_type
 
         # extraemos la mesh del modelo
         mesh: bpy.types.Mesh = model.data
