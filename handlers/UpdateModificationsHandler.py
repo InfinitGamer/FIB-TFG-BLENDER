@@ -68,7 +68,7 @@ def execute(scene: bpy.types.Scene, despgraph: bpy.types.Depsgraph):
     
     switch_settings: bpy.types.bpy_prop_collection = scene.switch_settings
     scene_objects: bpy.types.SceneObjects = scene.objects
-    
+
     for update in despgraph.updates:
 
         if isinstance(update.id, bpy.types.Object):
@@ -85,7 +85,7 @@ def execute(scene: bpy.types.Scene, despgraph: bpy.types.Depsgraph):
                     index: int = UpdateModificationsHandler.object_index(
                         switch_settings, obj.name
                     )
-                    switch_settings.pop(index=index)
+                    switch_settings.remove(index)
 
                 elif UpdateModificationsHandler.contains_object(
                     switch_settings, obj.name
