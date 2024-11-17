@@ -63,31 +63,35 @@ class AutomateBaking(bpy.types.Operator):
     @staticmethod
     def get_used_materials_index(model: bpy.types.Object) -> set[int]:
 
-        used_material : set[int] = set()
+        used_material: set[int] = set()
         polygons: bpy.types.MeshPolygons = model.data.polygons
         for polygon in polygons:
             used_material.add(polygon.material_index)
-        
+
         return used_material
-            
+
     @staticmethod
-    def create_bake_material(model: bpy.types.Object, image: bpy.types.Image, bake_type: str) -> dict[int, int]:
-        
-        map_material_original_to_bake : dict[int, int] = {}
+    def create_bake_material(
+        model: bpy.types.Object, image: bpy.types.Image, bake_type: str
+    ) -> dict[int, int]:
 
-        prefix: str = f"_{bake_type.lower()}_baked"
+        map_material_original_to_bake: dict[int, int] = {}
 
-        used_material_index : set[int] = AutomateBaking.get_used_materials_index(model)
-        
+        suffix: str = f"_{bake_type.lower()}_baked"
+
+        used_material_index: set[int] = AutomateBaking.get_used_materials_index(model)
+
         for index in used_material_index:
 
-            material_original = AutomateBaking.get_model_material(model.data,index)
-            
+            material_original = AutomateBaking.get_model_material(model.data, index)
+
             # cogemos el nombre de la imagen
-            material_name: str = material_original.name + prefix
+            material_name: str = material_original.name + suffix
 
             # creamos material
-            material_bake: bpy.types.Material = bpy.data.materials.new(name=material_name)
+            material_bake: bpy.types.Material = bpy.data.materials.new(
+                name=material_name
+            )
 
             # habilitamos el uso de nodos
             material_bake.use_nodes = True
@@ -122,11 +126,11 @@ class AutomateBaking(bpy.types.Operator):
 
             # decimos en que posicion del material está
             material_baked_index = len(model.data.materials) - 1
-            
-            #guardamos el conjunto key value
+
+            # guardamos el conjunto key value
             map_material_original_to_bake[index] = material_baked_index
-        
-        #devolvemos el diccionario 
+
+        # devolvemos el diccionario
         return map_material_original_to_bake
 
     @staticmethod
@@ -139,11 +143,15 @@ class AutomateBaking(bpy.types.Operator):
             return 0
 
     @staticmethod
-    def attach_material_to_polygons(model_setting: ObjectInfo, material_dicc: dict[int, int]):
+    def attach_material_to_polygons(
+        model_setting: ObjectInfo, material_dicc: dict[int, int]
+    ):
 
         for polygon in model_setting.polygons:
 
-            polygon.bake_material_index = material_dicc.get(polygon.original_material_index)
+            polygon.bake_material_index = material_dicc.get(
+                polygon.original_material_index
+            )
 
     @staticmethod
     def get_image(name: str, path: str, width: int, height: int) -> bpy.types.Image:
@@ -165,12 +173,15 @@ class AutomateBaking(bpy.types.Operator):
 
     @staticmethod
     def prepare_model(
-        model: bpy.types.Object, model_setting: ObjectInfo, image: bpy.types.Image, bake_type: str
+        model: bpy.types.Object,
+        model_setting: ObjectInfo,
+        image: bpy.types.Image,
+        bake_type: str,
     ):
-        #añadimos información sobre el modelo en sus settings
-        model_setting.object_name = model.name
-        
-
+        # añadimos información sobre el modelo en sus settings
+        model_setting.name = model.name
+        model_setting.bake_type = bake_type.lower()
+        model_setting.is_valid = True
         # extraemos la mesh del modelo
         mesh: bpy.types.Mesh = model.data
         # nos recorremos cada uno de los poligonos para setearlos
@@ -282,7 +293,7 @@ class AutomateBaking(bpy.types.Operator):
             index_material = face.material_index
             name_material_baked = mesh.materials[index_material].name
             materials_to_delete.add(name_material_baked)
-            name_material = name_material_baked.split("_baked")[0]
+            name_material = name_material_baked.removesuffix("_baked")
             index_original_material = mesh.materials.find(name_material)
             face.material_index = index_original_material
         # eliminamos los materiales baked
@@ -319,10 +330,10 @@ class AutomateBaking(bpy.types.Operator):
         # preparamos el objeto
         AutomateBaking.prepare_model(model, model_setting, image, bake_type)
 
-        
         # configuramos el bake
         AutomateBaking.configure_bake(device)
         try:
+
             # ejecutamos bake
             self.execute_bake(model, bake_type, margin, margin_type, pass_filter)
 
@@ -333,9 +344,10 @@ class AutomateBaking(bpy.types.Operator):
             AutomateBaking.restore_materials(model)
 
             # creamos material bake
-            material_baked_transformation: dict[int,int] = AutomateBaking.create_bake_material(
-                model, image, bake_type
+            material_baked_transformation: dict[int, int] = (
+                AutomateBaking.create_bake_material(model, image, bake_type)
             )
+
             AutomateBaking.attach_material_to_polygons(
                 model_setting, material_baked_transformation
             )
@@ -378,12 +390,12 @@ class AutomateBaking(bpy.types.Operator):
 
             if not valid:
                 size = len(switch_settings)
-                switch_settings.pop(size - 1)
+                switch_settings.remove((size - 1))
 
     def execute(self, context):
-        # faltaría seleccionar los elementos a hacer con baking
-        # de momento podemos utilizar los elementos seleccionados
+
         scene = context.scene
+        scene.communication_data.baking_active = True
         object_name_list: bpy.types.Collection = scene.autobake_settings.objects
         object_list = []
         for object_name in object_name_list:
@@ -411,4 +423,5 @@ class AutomateBaking(bpy.types.Operator):
             pass_filter,
             switch_structure,
         )
+        scene.communication_data.baking_active = False
         return {"FINISHED"}

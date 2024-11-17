@@ -25,6 +25,7 @@ import structures.UIBakeSettings as UIB
 import structures.PolygonsStructure as PS
 import structures.ObjectInfo as OI
 import structures.UISwitchSettings as UISS
+import structures.CommunicationData as CD
 import UI.AddonPanel as UIAP
 import UI.manualBakeUI.BakeObject as UIBO
 import UI.manualBakeUI.AddObject as UIAO
@@ -47,9 +48,12 @@ import UI.automaticBakeUI.AutomaticPreferencesPanel as UIAPP
 import UI.SwitchUI.SwitchButton as UISB
 import UI.SwitchUI.SwitchPanel as UISP
 
+from handlers.UpdateModificationsHandler import execute
+
 classes = [
     ObjN.ObjectName,
     BS.BakingSettings,
+    CD.CommunicationData,
     UIB.UIBakeSettings,
     PS.PolygonsStructure,
     OI.ObjectInfo,
@@ -92,9 +96,17 @@ def register():
     bpy.types.Scene.UIswitch_settings = bpy.props.PointerProperty(
         type=UISS.UISwichSettings
     )
+    bpy.types.Scene.communication_data = bpy.props.PointerProperty(
+        type=CD.CommunicationData
+    )
+
+    bpy.app.handlers.depsgraph_update_post.append(execute)
 
 
 def unregister():
+    bpy.app.handlers.depsgraph_update_post.remove(execute)
+
+    del bpy.types.Scene.communication_data
     del bpy.types.Scene.UIswitch_settings
     del bpy.types.Scene.switch_settings
     del bpy.types.Scene.autobake_settings

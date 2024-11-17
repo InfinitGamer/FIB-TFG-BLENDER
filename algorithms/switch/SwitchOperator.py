@@ -14,26 +14,30 @@ class SwitchOperator(bpy.types.Operator):
     def execute(self, context):
 
         scene = context.scene
-
+        scene.communication_data.switch_active = True
         info = scene.switch_settings
 
         for model_info in info:
-            model: bpy.types.Object = scene.objects[model_info.object_name]
+            if model_info.is_valid:
+                model: bpy.types.Object = scene.objects[model_info.name]
 
-            polygons = model.data.polygons
-            info_polygons = model_info.polygons
+                polygons = model.data.polygons
+                info_polygons = model_info.polygons
 
-            for polygon_info in info_polygons:
+                for polygon_info in info_polygons:
 
-                polygon: bpy.types.MeshPolygon = polygons[polygon_info.index]
+                    polygon: bpy.types.MeshPolygon = polygons[polygon_info.index]
 
-                if not self.switch:
-                    polygon.material_index = polygon_info.original_material_index
+                    if not self.switch:
+                        polygon.material_index = polygon_info.original_material_index
 
-                else:
-                    polygon.material_index = polygon_info.bake_material_index
+                    else:
+                        polygon.material_index = polygon_info.bake_material_index
 
         self.report(
             {"INFO"}, f"Models changed to {'baked' if self.switch else 'original'} ones"
         )
+
+        scene.communication_data.switch_active = False
+
         return {"FINISHED"}
