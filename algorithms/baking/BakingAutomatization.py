@@ -307,7 +307,9 @@ class AutomateBaking(bpy.types.Operator):
             material_removed = mesh.materials.pop(index=index)
             bpy.data.materials.remove(material_removed)
 
-
+        for image in bpy.data.images:
+            if "baked" not in image.name:
+                image.reload()
     def bake_model(
         self,
         model: bpy.types.Object,
