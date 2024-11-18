@@ -264,6 +264,11 @@ class AutomateBaking(bpy.types.Operator):
 
         # ponemos el modelo como el objeto activo
         bpy.context.view_layer.objects.active = model
+        for obj in bpy.context.scene.objects:
+            if obj.name != model.name:
+                obj.select_set(False)  # Deseleccionar objetos que no son el activo
+            else:
+                obj.select_set(True)
         try:
             bpy.ops.object.bake(
                 type=bake_type,
@@ -271,7 +276,7 @@ class AutomateBaking(bpy.types.Operator):
                 margin=margin,
                 margin_type=margin_type,
                 use_clear=True,
-                save_mode="EXTERNAL",
+                save_mode="INTERNAL",
             )
             self.report({"INFO"}, f"{model.name} was baked successfully")
         except Exception as e:
@@ -302,10 +307,6 @@ class AutomateBaking(bpy.types.Operator):
             material_removed = mesh.materials.pop(index=index)
             bpy.data.materials.remove(material_removed)
 
-        # recargamos la imagenes que hayan podido ser utilizadas
-        for image in bpy.data.images:
-            if "baked" not in image.name:
-                image.reload()
 
     def bake_model(
         self,

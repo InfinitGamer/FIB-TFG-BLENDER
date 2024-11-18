@@ -73,7 +73,7 @@ def execute(scene: bpy.types.Scene, despgraph: bpy.types.Depsgraph):
 
         if isinstance(update.id, bpy.types.Object):
             obj: bpy.types.Object = update.id
-            print(obj.name)
+            
             if obj.type == "MESH":
 
                 if UpdateModificationsHandler.contains_object(
