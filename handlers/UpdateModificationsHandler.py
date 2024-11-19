@@ -69,32 +69,16 @@ def execute(scene: bpy.types.Scene, despgraph: bpy.types.Depsgraph):
     switch_settings: bpy.types.bpy_prop_collection = scene.switch_settings
     scene_objects: bpy.types.SceneObjects = scene.objects
 
+    # comprobamos modificaciones de objetos
     for update in despgraph.updates:
 
         if isinstance(update.id, bpy.types.Object):
             obj: bpy.types.Object = update.id
             
-            if obj.type == "MESH":
+            if obj.type == "MESH" and UpdateModificationsHandler.contains_object(switch_settings, obj.name):
 
-                if UpdateModificationsHandler.contains_object(
+                index: int = UpdateModificationsHandler.object_index(
                     switch_settings, obj.name
-                ) and not UpdateModificationsHandler.scene_contains_object(
-                    scene_objects, obj.name
-                ):
-
-                    index: int = UpdateModificationsHandler.object_index(
-                        switch_settings, obj.name
-                    )
-                    switch_settings.remove(index)
-
-                elif UpdateModificationsHandler.contains_object(
-                    switch_settings, obj.name
-                ) and UpdateModificationsHandler.scene_contains_object(
-                    scene_objects, obj.name
-                ):
-
-                    index: int = UpdateModificationsHandler.object_index(
-                        switch_settings, obj.name
-                    )
-                    model: ObjectInfo = switch_settings[index]
-                    UpdateModificationsHandler.regenerate_polygons(obj, model)
+                )
+                model: ObjectInfo = switch_settings[index]
+                UpdateModificationsHandler.regenerate_polygons(obj, model)

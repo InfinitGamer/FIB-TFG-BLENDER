@@ -47,7 +47,7 @@ import UI.automaticBakeUI.SetAutomaticSettings as UISAS
 import UI.automaticBakeUI.AutomaticPreferencesPanel as UIAPP
 import UI.SwitchUI.SwitchButton as UISB
 import UI.SwitchUI.SwitchPanel as UISP
-
+import handlers.DeleteOperator as HDO
 from handlers.UpdateModificationsHandler import execute
 
 classes = [
@@ -81,6 +81,7 @@ classes = [
     SO.SwitchOperator,
     UISB.SwitchButton,
     UISP.SwitchPanel,
+    HDO.DeleteOperator,
 ]
 
 
@@ -102,8 +103,15 @@ def register():
 
     bpy.app.handlers.depsgraph_update_post.append(execute)
 
-
+    HDO.apply_keybindings()
+                        
+   
+    bpy.types.VIEW3D_MT_object_context_menu.append(HDO.custom_delete_menu)
 def unregister():
+    bpy.types.VIEW3D_MT_object_context_menu.remove(HDO.custom_delete_menu)
+
+    HDO.unapply_keybindings()
+                        
     bpy.app.handlers.depsgraph_update_post.remove(execute)
 
     del bpy.types.Scene.communication_data
