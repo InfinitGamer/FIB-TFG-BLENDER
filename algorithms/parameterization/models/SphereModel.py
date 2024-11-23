@@ -22,9 +22,9 @@ class SphereModel(ModelInterface):
             lambda p: (p[0] - Cx) ** 2 + (p[1] - Cy) ** 2 + (p[2] - Cz) ** 2 - R**2,
             data,
         )
-        x, y, z, r = sp.solve(equations, Cx, Cy, Cz, R)
-
-        return SphereModel(x=x, y=y, z=z, r=r)
+        solutions = sp.solve(equations, Cx, Cy, Cz, R, dict=True)
+        sol = filter(lambda sol: sol[R].evalf() >= 0, solutions)
+        return SphereModel(x=sol[Cx].evalf() , y=sol[Cy].evalf() , z=sol[Cz].evalf() , r=sol[R].evalf())
 
     @staticmethod
     def get_points(data) -> list:
