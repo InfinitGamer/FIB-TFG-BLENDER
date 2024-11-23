@@ -1,6 +1,21 @@
 import bpy
 import sys
 import os
+import subprocess
+import pkg_resources
+#installing dependencies
+
+modules_to_need ={
+    'sympy'
+}
+installed = {pkg.key for pkg in pkg_resources.working_set}
+missing = modules_to_need - installed
+if missing:
+    python = sys.executable
+    subprocess.check_call([python, '-m', 'pip', 'install', *missing], stdout=subprocess.DEVNULL)
+    
+
+
 
 bl_info = {
     "name": "AutomatizationBaking",
