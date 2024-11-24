@@ -11,14 +11,17 @@ class RANSAC:
         for _ in range(iterations):
             
             elements = ClassModel.get_points(data)
-            model = ClassModel.fit(elements)
+            try:
+                model = ClassModel.fit(elements)
             
-            distances = map(lambda point: model.distance(point))
-            error = sum(distances)
+                distances = map(lambda point: model.distance(point))
+                error = sum(distances)
 
-            if error < best_error:
-                best_error = error
-                best_model = model
+                if error < best_error:
+                    best_error = error
+                    best_model = model
+            except Exception as e:
+                pass
         
 
         return best_error, best_model
