@@ -5,11 +5,14 @@ from algorithms.parameterization.models.ModelInterface import ModelInterface
 class CubeModel (ModelInterface):
 
     def __init__(self, min_coords: tuple[float, float, float] = None, max_coords: tuple[float, float, float] = None):
+        super().__init__()
         self._min_coords = min_coords
         self._max_coords = max_coords
 
     @staticmethod
     def fit(data: list) -> 'ModelInterface':
+        if len(data) < 2:
+            raise RuntimeError("Minium points to create a cube is 2")
         xs = [p[0] for p in data]
         ys = [p[1] for p in data]
         zs = [p[2] for p in data]

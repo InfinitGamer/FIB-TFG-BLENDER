@@ -16,7 +16,8 @@ class SphereModel(ModelInterface):
 
     @staticmethod
     def fit(data: list) -> "ModelInterface":
-
+        if len(data) < 4:
+            raise RuntimeError("Minium points to create a sphere is 4")
         Cx, Cy, Cz, R2 = sp.symbols("Cx Cy Cz R2")
         equations = map(
             lambda p: (p[0] - Cx) ** 2 + (p[1] - Cy) ** 2 + (p[2] - Cz) ** 2 - R2,
