@@ -108,11 +108,14 @@ class CylinderModel(ModelInterface):
         self.y_min is None or
         self.y_max is None):
             raise  RuntimeError("Cylinder model doesn't have needed attributes to calculate distance")
-        dy =min(abs(point[1] - self.y_min), abs(point[1] - self.y_max))
-        dCylinder = abs(sqrt((point[0]-self.x)**2 + (point[2]-self.z)**2) - sqrt(self.r_squared))
+        # punto transformado a nuestro sistema
+        t_point = tuple (self.matrix_transformation @ np.array(list(point)))
 
-        inside_y = CylinderModel.is_inside_range(point[1],self.y_min, self.y_max)
-        inside_cylinder = CylinderModel.is_inside_cylinder(point[0], point[2], self.x, self.z, sqrt(self.r_squared))
+        dy =min(abs(t_point[1] - self.y_min), abs(t_point[1] - self.y_max))
+        dCylinder = abs(sqrt((t_point[0]-self.x)**2 + (t_point[2]-self.z)**2) - sqrt(self.r_squared))
+
+        inside_y = CylinderModel.is_inside_range(t_point[1],self.y_min, self.y_max)
+        inside_cylinder = CylinderModel.is_inside_cylinder(t_point[0], t_point[2], self.x, self.z, sqrt(self.r_squared))
 
         # si esta dentro del cilindro, la menor distancia se obtiene a partir de la distancia ortogonal
         # a todas las caras existentes
