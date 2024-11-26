@@ -1,8 +1,8 @@
 from algorithms.parameterization.models.ModelInterface import ModelInterface
 import random
 import sympy as sp
-
-
+from math import sqrt
+import numpy as np
 class SphereModel(ModelInterface):
 
     def __init__(
@@ -18,10 +18,22 @@ class SphereModel(ModelInterface):
     def fit(data: list) -> "ModelInterface":
         if len(data) < 4:
             raise RuntimeError("Minium points to create a sphere is 4")
+        
+        #check if points are colineal
+        random_sample_list: list[list] = map(lambda x: list(x), data[:4])
+        matrix = np.array(random_sample_list)
+        P1 = matrix[0]
+        vectors = matrix[1:] - P1
+        rank = np.linalg.matrix_rank(vectors)
+        if rank == 1:
+            raise RuntimeError("Points are colienal")
+        
+        
+        #calculate centre and radius squared of the sphere
         Cx, Cy, Cz, R2 = sp.symbols("Cx Cy Cz R2")
         equations = map(
             lambda p: (p[0] - Cx) ** 2 + (p[1] - Cy) ** 2 + (p[2] - Cz) ** 2 - R2,
-            data,
+            data[:4],
         )
         solutions = sp.solve(equations, Cx, Cy, Cz, R2, dict=True)
         if len(solutions) <= 0:
@@ -31,7 +43,17 @@ class SphereModel(ModelInterface):
 
     @staticmethod
     def get_points(data) -> list:
-        return random.sample(data, 4)
+        for _ in range(1000):
+            random_sample:list[tuple] =random.sample(data, 4)
+            random_sample_list: list[list] = map(lambda x: list(x), random_sample)
+            matrix = np.array(random_sample_list)
+            P1 = matrix[0]
+            vectors = matrix[1:] - P1
+            rank = np.linalg.matrix_rank(vectors)
+            if rank != 1:
+                return random_sample
+        
+        raise RuntimeError("There aren't non co-lienal points")
 
     def distance(self, point) -> float:
         if self._x is None or self._y is None or self._z is None or self._r_squared is None:
@@ -40,5 +62,6 @@ class SphereModel(ModelInterface):
         distance += (point[0]-self._x)**2
         distance += (point[1]-self._y)**2
         distance += (point[2]-self._z)**2
-        distance -= self._r_squared
+        distance = sqrt(distance)
+        distance -= sqrt(self._r_squared)
         return abs(distance)

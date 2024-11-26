@@ -2,7 +2,7 @@ import bpy
 from typing import Type
 from algorithms.parameterization.models.ModelInterface import ModelInterface
 import algorithms.parameterization.models as md
-
+from math import sqrt
 class RANSAC(bpy.types.Operator):
     bl_idname = "object.auto_projection"
     bl_label = "Auto Projection RANSAC algorithm"
@@ -16,13 +16,14 @@ class RANSAC(bpy.types.Operator):
         best_model = None
 
         for _ in range(iterations):
-            
-            elements = ClassModel.get_points(data)
+             
             try:
+                elements = ClassModel.get_points(data)
                 model = ClassModel.fit(elements)
             
                 distances = map(lambda point: model.distance(point))
-                error = sum(distances)
+                #RMSD error
+                error = sqrt(sum(distances**2) / float(len(data)))
 
                 if error < best_error:
                     best_error = error

@@ -6,7 +6,8 @@ import pkg_resources
 #installing dependencies
 
 modules_to_need ={
-    'sympy'
+    'sympy',
+    'numpy'
 }
 installed = {pkg.key for pkg in pkg_resources.working_set}
 missing = modules_to_need - installed
