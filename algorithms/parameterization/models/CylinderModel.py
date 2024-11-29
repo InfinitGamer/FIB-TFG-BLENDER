@@ -5,12 +5,12 @@ import numpy as np
 from math import sqrt
 
 class CylinderModel(ModelInterface):
-    def __init__(self, matrix_transformation: np.ndarray = None, x: float = None, z: float = None, r_squared: float = None, y_min: float = None, y_max: float = None):
+    def __init__(self, matrix_transformation: np.ndarray = None, x: float = None, z: float = None, r: float = None, y_min: float = None, y_max: float = None):
         super().__init__()
         self.matrix_transformation = matrix_transformation
         self.x = x
         self.z = z
-        self.r_squared = r_squared
+        self.r= r
         self.y_min = y_min
         self.y_max = y_max
 
@@ -61,31 +61,36 @@ class CylinderModel(ModelInterface):
         # creamos un matriz de rotacion a que pasa un vector al vector (0,1,0) y así
         # poder trabajar con un cilidro alineado con este eje
         rotation_matrix = CylinderModel.matrix_rotation_vector(Vector, target)
-        rotated_points = map(lambda x:tuple(rotation_matrix @ np.array(list(x))), data[2:5])
+        rotated_points = list(map(lambda x:tuple(rotation_matrix @ np.array(list(x))), data[2:5]))
         
-        #calculamos cilindro
-        Cx, Cz, R2 = sp.symbols("Cx Cz R2")
-        equations = map(
-            lambda p: (p[0] - Cx) ** 2 +  + (p[2] - Cz) ** 2 - R2,
-            rotated_points,
-        )
-        solutions = sp.solve(equations, Cx, Cz, R2, dict=True)
-        if len(solutions) <= 0:
-            raise RuntimeError("It doesn't exist a Sphere that can be expressed with the given data")
-        sol = solutions[0]
-        ys = [p[1] for p in rotated_points]
+        A = []
+        B = []
+        for x, _, z in rotated_points:
+            #expandiendo sistema de equaciones  x^2  +z^2 = 2*z_0*z + 2*x_0*x + constante(R^2  - x_0^2 - z_0^2)
+            A.append([2*x, 2*z, 1]) # coeficientes de las incognitas
+            B.append(x**2 + z**2) # resultado de cada equacion
+
+        A = np.array(A)
+        B = np.array(B)
+        
+        solution = np.linalg.solve(A, B) #da una excepcion si no es posible resolver
+
+        # centro del cilindro
+        x_c, z_c, D = solution
+        # a partir de la constante D = R^2  - x_0^2 - z_0^2 por lo tanto R es =  sqrt (D + x_0^2 + z_0^2)
+        r = np.sqrt(x_c**2 + z_c**2 + D)
+
+        ys = [p[1] for p in rotated_points] 
         min_y = min(ys)
         max_y = max(ys)
-        X = sol[Cx].evalf()
-        Z = sol[Cz].evalf()    
-        R_squared = sol[R2].evalf()
-        return CylinderModel(x=X , z=Z, matrix_transformation=rotation_matrix, r_squared=R_squared, y_max=max_y, y_min=min_y)
+        
+        return CylinderModel(x=x_c , z=z_c, matrix_transformation=rotation_matrix, r=r, y_max=max_y, y_min=min_y)
 
     @staticmethod
     def get_points(data) -> list:
         for _ in range(1000):
             random_sample:list[tuple] =random.sample(data, 5)
-            random_sample_list: list[list] = map(lambda x: list(x), random_sample)
+            random_sample_list: list[list] = list(map(lambda x: list(x), random_sample))
             matrix = np.array(random_sample_list)
             P1 = matrix[0]
             vectors = matrix[1:] - P1
@@ -104,18 +109,18 @@ class CylinderModel(ModelInterface):
         if (self.matrix_transformation is None or
         self.x is None or
         self.z is None or
-        self.r_squared is None or
+        self.r is None or
         self.y_min is None or
         self.y_max is None):
             raise  RuntimeError("Cylinder model doesn't have needed attributes to calculate distance")
         # punto transformado a nuestro sistema
-        t_point = tuple (self.matrix_transformation @ np.array(list(point)))
+        t_point = self.matrix_transformation @ np.array(list(point))
 
         dy =min(abs(t_point[1] - self.y_min), abs(t_point[1] - self.y_max))
-        dCylinder = abs(sqrt((t_point[0]-self.x)**2 + (t_point[2]-self.z)**2) - sqrt(self.r_squared))
+        dCylinder = abs(sqrt((t_point[0]-self.x)**2 + (t_point[2]-self.z)**2) - self.r)
 
         inside_y = CylinderModel.is_inside_range(t_point[1],self.y_min, self.y_max)
-        inside_cylinder = CylinderModel.is_inside_cylinder(t_point[0], t_point[2], self.x, self.z, sqrt(self.r_squared))
+        inside_cylinder = CylinderModel.is_inside_cylinder(t_point[0], t_point[2], self.x, self.z, self.r)
 
         # si esta dentro del cilindro, la menor distancia se obtiene a partir de la distancia ortogonal
         # a todas las caras existentes
