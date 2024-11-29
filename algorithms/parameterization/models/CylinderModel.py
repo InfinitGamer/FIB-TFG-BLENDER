@@ -1,6 +1,5 @@
 from algorithms.parameterization.models.ModelInterface import ModelInterface
 import random
-import sympy as sp
 import numpy as np
 from math import sqrt
 

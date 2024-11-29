@@ -1,6 +1,6 @@
 from algorithms.parameterization.models.ModelInterface import ModelInterface
 import random
-import sympy as sp
+
 from math import sqrt
 import numpy as np
 class SphereModel(ModelInterface):
