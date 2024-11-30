@@ -399,6 +399,7 @@ class AutomateBaking(bpy.types.Operator):
 
         scene = context.scene
         scene.communication_data.baking_active = True
+        
         object_name_list: bpy.types.Collection = scene.autobake_settings.objects
         object_list = []
         for object_name in object_name_list:
@@ -414,6 +415,9 @@ class AutomateBaking(bpy.types.Operator):
         margin_type: str = self.margin_type
         pass_filter: set[str] = self.pass_filter
         switch_structure = scene.switch_settings
+
+        #borramos la información del bake anterior
+        switch_structure.clear()
         self.bake_list(
             object_list,
             bake_type,
