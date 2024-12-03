@@ -131,7 +131,7 @@ class RANSAC(bpy.types.Operator):
 
         func(scale_to_bounds=True)
         bpy.ops.uv.select_all(action="SELECT")
-        bpy.ops.uv.pack_islands(rotate=False, margin=0.02)
+        bpy.ops.uv.pack_islands(rotate=True, margin=0.02)
 
         bpy.ops.object.mode_set(mode="OBJECT")
         

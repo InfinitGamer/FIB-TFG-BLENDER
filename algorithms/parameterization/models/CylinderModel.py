@@ -83,17 +83,7 @@ class CylinderModel(ModelInterface):
 
     @staticmethod
     def get_points(data) -> list:
-        for _ in range(1000):
-            random_sample:list[tuple] =random.sample(data, 5)
-            random_sample_list: list[list] = list(map(lambda x: list(x), random_sample))
-            matrix = np.array(random_sample_list)
-            P1 = matrix[0]
-            vectors = matrix[1:] - P1
-            rank = np.linalg.matrix_rank(vectors)
-            if rank != 1:
-                return random_sample
-        
-        raise RuntimeError("There aren't non co-lienal points")
+        return random.sample(data, 5)
        
     def is_inside_cylinder(x, z, px,pz, radius) -> bool:
         return  ((x - px)**2 + (z -pz)**2) <= radius**2

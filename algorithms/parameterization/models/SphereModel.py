@@ -19,16 +19,6 @@ class SphereModel(ModelInterface):
         if len(data) < 4:
             raise RuntimeError("Minium points to create a sphere is 4")
         
-        #check if points are colineal
-        random_sample_list: list[list] = list(map(lambda x: list(x), data[:4]))
-                                              
-        matrix = np.array(random_sample_list)
-        P1 = matrix[0]
-        vectors = matrix[1:] - P1
-        rank = np.linalg.matrix_rank(vectors)
-        if rank == 1:
-            raise RuntimeError("Points are colienal")
-        
         
         A = []
         B = []
@@ -52,17 +42,8 @@ class SphereModel(ModelInterface):
 
     @staticmethod
     def get_points(data) -> list:
-        for _ in range(1000):
-            random_sample:list[tuple] =random.sample(data, 4)
-            random_sample_list: list[list] = list(map(lambda x: list(x), random_sample))
-            matrix = np.array(random_sample_list)
-            P1 = matrix[0]
-            vectors = matrix[1:] - P1
-            rank = np.linalg.matrix_rank(vectors)
-            if rank != 1:
-                return random_sample
-        
-        raise RuntimeError("There aren't non co-lienal points")
+        return random.sample(data, 4)
+     
 
     def distance(self, point) -> float:
         if self._x is None or self._y is None or self._z is None or self._r is None:
