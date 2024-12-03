@@ -4,14 +4,13 @@ import numpy as np
 from math import sqrt
 
 class CylinderModel(ModelInterface):
-    def __init__(self, matrix_transformation: np.ndarray = None, x: float = None, z: float = None, r: float = None, y_min: float = None, y_max: float = None):
+    def __init__(self, matrix_transformation: np.ndarray = None, x: float = None, z: float = None, r: float = None):
         super().__init__()
         self.matrix_transformation = matrix_transformation
         self.x = x
         self.z = z
         self.r= r
-        self.y_min = y_min
-        self.y_max = y_max
+        
 
     @staticmethod
     def matrix_rotation_vector(vector: np.ndarray, target: np.ndarray) -> np.ndarray:
@@ -79,11 +78,8 @@ class CylinderModel(ModelInterface):
         # a partir de la constante D = R^2  - x_0^2 - z_0^2 por lo tanto R es =  sqrt (D + x_0^2 + z_0^2)
         r = np.sqrt(x_c**2 + z_c**2 + D)
 
-        ys = [p[1] for p in rotated_points] 
-        min_y = min(ys)
-        max_y = max(ys)
         
-        return CylinderModel(x=x_c , z=z_c, matrix_transformation=rotation_matrix, r=r, y_max=max_y, y_min=min_y)
+        return CylinderModel(x=x_c , z=z_c, matrix_transformation=rotation_matrix, r=r)
 
     @staticmethod
     def get_points(data) -> list:
@@ -98,9 +94,7 @@ class CylinderModel(ModelInterface):
                 return random_sample
         
         raise RuntimeError("There aren't non co-lienal points")
-    @staticmethod
-    def is_inside_range(x:float , min: float, max: float) -> bool:
-        return min <= x and x <= max        
+       
     def is_inside_cylinder(x, z, px,pz, radius) -> bool:
         return  ((x - px)**2 + (z -pz)**2) <= radius**2
 
@@ -108,22 +102,11 @@ class CylinderModel(ModelInterface):
         if (self.matrix_transformation is None or
         self.x is None or
         self.z is None or
-        self.r is None or
-        self.y_min is None or
-        self.y_max is None):
+        self.r is None):
             raise  RuntimeError("Cylinder model doesn't have needed attributes to calculate distance")
         # punto transformado a nuestro sistema
         t_point = self.matrix_transformation @ np.array(list(point))
 
-        dy =min(abs(t_point[1] - self.y_min), abs(t_point[1] - self.y_max))
         dCylinder = abs(sqrt((t_point[0]-self.x)**2 + (t_point[2]-self.z)**2) - self.r)
 
-        inside_y = CylinderModel.is_inside_range(t_point[1],self.y_min, self.y_max)
-        inside_cylinder = CylinderModel.is_inside_cylinder(t_point[0], t_point[2], self.x, self.z, self.r)
-
-        # si esta dentro del cilindro, la menor distancia se obtiene a partir de la distancia ortogonal
-        # a todas las caras existentes
-        if inside_y and inside_cylinder:
-            return min(dy, dCylinder)
-        
-        return sqrt(float(not inside_y)*dy**2 + float(not inside_cylinder)*dCylinder**2)
+        return dCylinder

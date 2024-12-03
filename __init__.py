@@ -34,6 +34,7 @@ sys.path.append(ADDON_FOLDER_PATH)
 
 import algorithms.baking.BakingAutomatization as BK
 import algorithms.switch.SwitchOperator as SO
+import algorithms.parameterization.RANSAC as RS
 import structures.ObjectName as ObjN
 import structures.BakingSettings as BS
 import structures.UIBakeSettings as UIB
@@ -41,6 +42,7 @@ import structures.PolygonsStructure as PS
 import structures.ObjectInfo as OI
 import structures.UISwitchSettings as UISS
 import structures.CommunicationData as CD
+import structures.ParametrizationSettings as PRS
 import UI.AddonPanel as UIAP
 import UI.manualBakeUI.BakeObject as UIBO
 import UI.manualBakeUI.AddObject as UIAO
@@ -64,8 +66,13 @@ import UI.SwitchUI.SwitchButton as UISB
 import UI.SwitchUI.SwitchPanel as UISP
 import handlers.DeleteOperator as HDO
 from handlers.UpdateModificationsHandler import execute
-
+import UI.parametrizationUI.DensityPanel as UIDE
+import UI.parametrizationUI.IterationsPanel as UIIP
+import UI.parametrizationUI.ParametrizationPanel as UIPP
+import UI.parametrizationUI.VerbosePanel as UIVP
+import UI.parametrizationUI.ParametrizationButton as UIPB
 classes = [
+    PRS.ParametrizationSettings,
     ObjN.ObjectName,
     BS.BakingSettings,
     CD.CommunicationData,
@@ -97,6 +104,12 @@ classes = [
     UISB.SwitchButton,
     UISP.SwitchPanel,
     HDO.DeleteOperator,
+    RS.RANSAC,
+    UIPB.ParametrizationButton,
+    UIPP.ParametrizationPanel,
+    UIIP.IterationsPanel,
+    UIDE.DensityPanel,
+    UIVP.VerbosePanel
 ]
 
 
@@ -116,6 +129,7 @@ def register():
         type=CD.CommunicationData
     )
 
+    bpy.types.Scene.parametrization_settings = bpy.props.PointerProperty(type=PRS.ParametrizationSettings)
     bpy.app.handlers.depsgraph_update_post.append(execute)
 
     HDO.apply_keybindings()
@@ -129,6 +143,7 @@ def unregister():
                         
     bpy.app.handlers.depsgraph_update_post.remove(execute)
 
+    del bpy.types.Scene.parametrization_settings
     del bpy.types.Scene.communication_data
     del bpy.types.Scene.UIswitch_settings
     del bpy.types.Scene.switch_settings
