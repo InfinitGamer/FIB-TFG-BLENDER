@@ -90,11 +90,9 @@ class RANSAC(bpy.types.Operator):
     def execute(self, context):
         models = [
                   ("Sphere", md.SphereModel),
-                  ("Cube", md.CubeModel),
                   ("Cylinder", md.CylinderModel)
                  ]
         functions ={"Sphere": bpy.ops.uv.sphere_project,
-                    "Cube": bpy.ops.uv.cube_project,
                     "Cylinder": bpy.ops.uv.cylinder_project}
         
         obj: bpy.types.Object = context.active_object
@@ -127,14 +125,15 @@ class RANSAC(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_mode(type="FACE")
         bpy.ops.mesh.select_all(action="SELECT")
-    
-        if type == "Cube":
-            func(cube_size=2, scale_to_bounds=True)
-        else:
-            func(scale_to_bounds=True)
-        bpy.ops.uv.select_all(action="SELECT")
-        bpy.ops.uv.pack_islands(rotate=True, margin=0.02)
 
+        current_rotation = bpy.context.space_data.region_3d.view_rotation.copy()
+        #las posiciones se basan en la posción del viewport, por lo tanto, lo haremos las proyecciones de frente
+        bpy.ops.view3d.view_axis(type='FRONT')
+
+        func(scale_to_bounds=True)
+
+        bpy.context.space_data.region_3d.view_rotation = current_rotation
+        
         bpy.ops.object.mode_set(mode="OBJECT")
         
         return {"FINISHED"}
