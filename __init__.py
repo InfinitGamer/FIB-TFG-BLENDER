@@ -35,6 +35,7 @@ sys.path.append(ADDON_FOLDER_PATH)
 import algorithms.baking.BakingAutomatization as BK
 import algorithms.switch.SwitchOperator as SO
 import algorithms.parameterization.RANSAC as RS
+import algorithms.meshSeparator.MeshSeparator as MS
 import structures.ObjectName as ObjN
 import structures.BakingSettings as BS
 import structures.UIBakeSettings as UIB
@@ -71,6 +72,8 @@ import UI.parametrizationUI.IterationsPanel as UIIP
 import UI.parametrizationUI.ParametrizationPanel as UIPP
 import UI.parametrizationUI.VerbosePanel as UIVP
 import UI.parametrizationUI.ParametrizationButton as UIPB
+import UI.meshSeparatorUI.MeshSeparatorButton as MSB
+import UI.meshSeparatorUI.MeshSeparatorPanel as MSP
 classes = [
     PRS.ParametrizationSettings,
     ObjN.ObjectName,
@@ -109,7 +112,10 @@ classes = [
     UIPP.ParametrizationPanel,
     UIIP.IterationsPanel,
     UIDE.DensityPanel,
-    UIVP.VerbosePanel
+    UIVP.VerbosePanel,
+    MS.MeshSeparator,
+    MSB.MeshSeparatorButton,
+    MSP.MeshSeparatorPanel
 ]
 
 
