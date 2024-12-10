@@ -114,20 +114,22 @@ class RANSAC(bpy.types.Operator):
             vertices = vertices + density_points
             
 
-            results =[]
+            min_error = float('inf')
+            best_model = None
             for type, model in models:
                 result, _ = RANSAC.RANSAC(vertices,model, self.iterations, self.verbose)
-                results.append((result, type))
+                if result < min_error:
+                    min_error = result
+                    best_model = type
+                
 
-            results = sorted(results, key=lambda tup: tup[0])
-            
-            key = results[0][1]
-            func = functions[key]
+    
+            func = functions[best_model]
             
             if self.verbose:
-                print(f"Se aplica {key}")
+                print(f"Se aplica {best_model}")
 
-            new_uv_map = obj.data.uv_layers.new(name=f"{key}_projection_uv")
+            new_uv_map = obj.data.uv_layers.new(name=f"{best_model}_projection_uv")
             obj.data.uv_layers.active = new_uv_map
 
             bpy.ops.object.mode_set(mode='EDIT')
