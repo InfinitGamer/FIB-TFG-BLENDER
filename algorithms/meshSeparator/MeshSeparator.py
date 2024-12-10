@@ -99,16 +99,25 @@ class MeshSeparator(bpy.types.Operator):
             edges: list[bmesh.types.BMEdge] = MeshSeparator.dijkstra(bm, point1_index, point2_index)
             for edge in edges:
                 edge.seam = True
-
+        
+        for vertex in bm.verts:
+            vertex.select= False
         # Actualizar la malla con los cambios realizados
         bmesh.update_edit_mesh(obj.data, loop_triangles=False, destructive=False)
 
  
     @staticmethod
-    def separate_by_seams():
+    def separate_by_seams(obj: bpy.types.Object):
         bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.mesh.select_mode(type='FACE')
+        # Obtener el BMesh del objeto
+        bm = bmesh.from_edit_mesh(obj.data)
+        bm.faces[0].select = True
+        bmesh.update_edit_mesh(obj.data)
         bpy.ops.mesh.select_linked(delimit={'SEAM'})
         bpy.ops.mesh.separate(type='SELECTED')
+        bpy.ops.mesh.select_all(action='DESELECT')
+
     @staticmethod
     def mesh_separator(object: bpy.types.Object):
         
@@ -116,8 +125,7 @@ class MeshSeparator(bpy.types.Operator):
 
         MeshSeparator.make_seams(object)
 
-       # MeshSeparator.separate_by_seams()
-
+        MeshSeparator.separate_by_seams(object)
 
     def execute(self, context):
         active_object: bpy.types.Object= context.active_object

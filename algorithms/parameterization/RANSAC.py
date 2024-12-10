@@ -88,6 +88,8 @@ class RANSAC(bpy.types.Operator):
         return best_error, best_model
 
     def execute(self, context):
+        bpy.ops.object.mode_set(mode='OBJECT')
+        
         models = [
                   ("Sphere", md.SphereModel),
                   ("Cylinder", md.CylinderModel)
@@ -95,46 +97,52 @@ class RANSAC(bpy.types.Operator):
         functions ={"Sphere": bpy.ops.uv.sphere_project,
                     "Cylinder": bpy.ops.uv.cylinder_project}
         
-        obj: bpy.types.Object = context.active_object
-        if obj.type != 'MESH':
-            self.report({"ERROR_INVALID_INPUT"},"Object is not mesh type")
-            return {"FINISHED"}
-        
-        mesh: bpy.types.Mesh = obj.data
-        vertices = [tuple(v.co) for v in mesh.vertices]
-        density_points = RANSAC.super_sampling(obj,self.density)
-        vertices = vertices + density_points
-        print(vertices)
-        results =[]
-        for type, model in models:
-            result, _ = RANSAC.RANSAC(vertices,model, self.iterations, self.verbose)
-            results.append((result, type))
+        objects: list[bpy.types.Object] = context.selected_objects
+        for obj in objects:
+            bpy.ops.object.select_all(action='DESELECT')
 
-        results = sorted(results, key=lambda tup: tup[0])
-        print(results)
-        key = results[0][1]
-        func = functions[key]
-        print(f"Se aplica {key}")
+            if obj.type != 'MESH':
+                self.report({"ERROR_INVALID_INPUT"},"Object is not mesh type")
+                continue
 
-        new_uv_map = obj.data.uv_layers.new(name=f"{key}_projection_uv")
-        
-        obj.data.uv_layers.active = new_uv_map
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
 
-    
-        
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.select_mode(type="FACE")
-        bpy.ops.mesh.select_all(action="SELECT")
+            mesh: bpy.types.Mesh = obj.data
+            vertices = [tuple(v.co) for v in mesh.vertices]
+            density_points = RANSAC.super_sampling(obj,self.density)
+            vertices = vertices + density_points
+            
 
-        current_rotation = bpy.context.space_data.region_3d.view_rotation.copy()
-        #las posiciones se basan en la posción del viewport, por lo tanto, lo haremos las proyecciones de frente
-        bpy.ops.view3d.view_axis(type='FRONT')
+            results =[]
+            for type, model in models:
+                result, _ = RANSAC.RANSAC(vertices,model, self.iterations, self.verbose)
+                results.append((result, type))
 
-        func(scale_to_bounds=True)
+            results = sorted(results, key=lambda tup: tup[0])
+            
+            key = results[0][1]
+            func = functions[key]
+            
+            if self.verbose:
+                print(f"Se aplica {key}")
 
-        bpy.context.space_data.region_3d.view_rotation = current_rotation
-        
-        bpy.ops.object.mode_set(mode="OBJECT")
+            new_uv_map = obj.data.uv_layers.new(name=f"{key}_projection_uv")
+            obj.data.uv_layers.active = new_uv_map
+
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_mode(type="FACE")
+            bpy.ops.mesh.select_all(action="SELECT")
+
+            current_rotation = bpy.context.space_data.region_3d.view_rotation.copy()
+            #las posiciones se basan en la posción del viewport, por lo tanto, lo haremos las proyecciones de frente
+            bpy.ops.view3d.view_axis(type='FRONT')
+
+            func(scale_to_bounds=True)
+
+            bpy.context.space_data.region_3d.view_rotation = current_rotation
+            
+            bpy.ops.object.mode_set(mode="OBJECT")
         
         return {"FINISHED"}
 
