@@ -416,7 +416,7 @@ class AutomateBaking(bpy.types.Operator):
         pass_filter: set[str] = self.pass_filter
         switch_structure = scene.switch_settings
 
-        #borramos la información del bake anterior
+        # borramos la información del bake anterior
         switch_structure.clear()
         self.bake_list(
             object_list,
