@@ -122,9 +122,6 @@ class BakeObject(bpy.types.Operator):
         # quitamos de los objetos a hacer bake, los posibles materiales anteriores de la propiedad que se va hacer ahora, ya no seran utiles
         self.remove_materials_previously_baked(scene,objects_names,autobake_settings)
         
-        #borramos la información del bake anterior
-        scene.switch_settings.clear()
-        
         self.execute_bake(autobake_settings)
 
         # ponemos switch en on
