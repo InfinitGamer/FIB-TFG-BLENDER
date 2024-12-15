@@ -2,6 +2,8 @@ import bpy
 import mathutils
 import numpy as np
 from itertools import combinations
+from .indicators.IndicatorInterface import IndicatorInterface
+from typing import Type
 class Analyzer(bpy.types.Operator):
     bl_idname = "uv.analyze"
     bl_label = "Analyzer"
@@ -14,8 +16,8 @@ class Analyzer(bpy.types.Operator):
         # vertices en espacio world
         verts = [object.matrix_world @ object.data.vertices[vert_idx].co.to_4d() for vert_idx in vertices_indexes]
         
-        # normal es espacio world, la normal es un vector fila, por eso la multiplicacion de manera izquierda a derecha
-        normal = normal_p @ object.matrix_world.to_3x3().transposed()
+        # normal en espacio world
+        normal =  object.matrix_world.to_3x3().invert_safe().transposed() @ normal_p.to_3d()
 
         # creamos matriz de transformacion que pase normal al eje z
         z_axis = mathutils.Vector((0, 0, 1))
@@ -89,10 +91,13 @@ class Analyzer(bpy.types.Operator):
         
         raise RuntimeError("Polygon is not a triangle or quad")
           
-    
     @staticmethod
-    def analyze(object: bpy.types.Object):
+    def substract_vector(points:list[mathutils.Vector], vector: mathutils.Vector) -> list[mathutils.Vector]:
+        return [v - vector for v in points]
+    @staticmethod
+    def analyze(object: bpy.types.Object, indicator: Type[IndicatorInterface]) ->float:
         mesh = object.data
+        eigen_values = []
         for polygon in mesh.polygons:
             vertex_index: list[int] = [mesh.loops[loop_index].vertex_index for loop_index in polygon.loop_indices]
             
@@ -102,7 +107,13 @@ class Analyzer(bpy.types.Operator):
 
             tangent_points:list[mathutils.Vector] = Analyzer.polygon_to_tangent_plane(object, vertex_index, polygon.normal)
 
+            centered_tangent_point = Analyzer.substract_vector(tangent_points, tangent_points[0])
+            centered_tangent_UVs = Analyzer.substract_vector(UVs, UVs[0])
 
+            eigen_value = Analyzer.get_eigen_values_general(centered_tangent_point, centered_tangent_UVs)
+            eigen_values.append(eigen_value)
+
+        return indicator.evaluate(eigen_values,mesh.polygons)
 
     def execute(self, context):
         #hacer try catch
