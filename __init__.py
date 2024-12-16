@@ -36,6 +36,7 @@ import algorithms.baking.BakingAutomatization as BK
 import algorithms.switch.SwitchOperator as SO
 import algorithms.parameterization.RANSAC as RS
 import algorithms.meshSeparator.MeshSeparator as MS
+import algorithms.distorsion.Analyzer as DA
 import structures.ObjectName as ObjN
 import structures.BakingSettings as BS
 import structures.UIBakeSettings as UIB
@@ -44,6 +45,7 @@ import structures.ObjectInfo as OI
 import structures.UISwitchSettings as UISS
 import structures.CommunicationData as CD
 import structures.ParametrizationSettings as PRS
+import structures.AnalyzeSettings as AS
 import UI.AddonPanel as UIAP
 import UI.manualBakeUI.BakeObject as UIBO
 import UI.manualBakeUI.AddObject as UIAO
@@ -74,6 +76,9 @@ import UI.parametrizationUI.VerbosePanel as UIVP
 import UI.parametrizationUI.ParametrizationButton as UIPB
 import UI.meshSeparatorUI.MeshSeparatorButton as MSB
 import UI.meshSeparatorUI.MeshSeparatorPanel as MSP
+import UI.analyzerUI.AnalyzeButton as AAB
+import UI.analyzerUI.IndicatorPanel as AIP
+import UI.analyzerUI.AnalyzePanel as AAP
 classes = [
     PRS.ParametrizationSettings,
     ObjN.ObjectName,
@@ -115,7 +120,12 @@ classes = [
     UIVP.VerbosePanel,
     MS.MeshSeparator,
     MSB.MeshSeparatorButton,
-    MSP.MeshSeparatorPanel
+    MSP.MeshSeparatorPanel,
+    DA.Analyzer,
+    AS.AnalyzeSettings,
+    AAB.AnalyzeButton,
+    AAP.AnalyzePanel,
+    AIP.IndicatorPanel
 ]
 
 
@@ -136,6 +146,8 @@ def register():
     )
 
     bpy.types.Scene.parametrization_settings = bpy.props.PointerProperty(type=PRS.ParametrizationSettings)
+
+    bpy.types.Scene.analyzer_settings = bpy.props.PointerProperty(type=AS.AnalyzeSettings)
     bpy.app.handlers.depsgraph_update_post.append(execute)
 
     HDO.apply_keybindings()
@@ -148,7 +160,8 @@ def unregister():
     HDO.unapply_keybindings()
                         
     bpy.app.handlers.depsgraph_update_post.remove(execute)
-
+    
+    del bpy.types.Scene.analyzer_settings
     del bpy.types.Scene.parametrization_settings
     del bpy.types.Scene.communication_data
     del bpy.types.Scene.UIswitch_settings
