@@ -36,6 +36,11 @@ class Analyzer(bpy.types.Operator):
     )
     path: bpy.props.StringProperty()
 
+    exportable_indicators = set(["RATIODISTORTED"])
+    
+    @staticmethod
+    def is_exportable_type(type: str) -> bool:
+        return type in Analyzer.exportable_indicators
     @staticmethod
     def polygon_to_tangent_plane(
         object: bpy.types.Object,
@@ -192,7 +197,7 @@ class Analyzer(bpy.types.Operator):
         try:
 
             score = Analyzer.analyze(obj, indicator)
-            
+
             if isinstance(score, int):
                 Analyzer.popup_message(context, f"The score is {score}")
             else:
