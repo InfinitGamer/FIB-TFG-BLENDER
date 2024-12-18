@@ -6,6 +6,7 @@ from .indicators.IndicatorInterface import IndicatorInterface
 from typing import Type
 from .indicators import AreaDistortedIndicator
 from .indicators import AverageDistorsionIndicator
+from .indicators import RatioDistortedIndicator
 
 
 class Analyzer(bpy.types.Operator):
@@ -25,9 +26,15 @@ class Analyzer(bpy.types.Operator):
                 "Area Distorted",
                 "Area distorted expressed in parts per units",
             ),
+            (
+                "RATIODISTORTED",
+                "Ratio Distorted",
+                "Image representing for each ratio of distorsion the number of polygons that have that ratio",
+            ),
         ],
         default="AREADISTORTED",
     )
+    path: bpy.props.StringProperty()
 
     @staticmethod
     def polygon_to_tangent_plane(
@@ -179,12 +186,25 @@ class Analyzer(bpy.types.Operator):
         map = {
             "AVERAGEDISTORTION": AverageDistorsionIndicator,
             "AREADISTORTED": AreaDistortedIndicator,
+            "RATIODISTORTED": RatioDistortedIndicator,
         }
         indicator = map.get(self.type)
         try:
-            
+
             score = Analyzer.analyze(obj, indicator)
-            Analyzer.popup_message(context, f"The score is {score}")
+            
+            if isinstance(score, int):
+                Analyzer.popup_message(context, f"The score is {score}")
+            else:
+
+                path: str = self.path
+                if not path.endswith(".png"):
+                    path += ".png"
+
+                with open(path, "wb") as f:
+                    f.write(score.read())
+
+                self.report({"INFO"}, "Plot saved")
 
         except Exception as e:
             self.report({"ERROR"}, str(e))

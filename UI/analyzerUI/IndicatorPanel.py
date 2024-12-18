@@ -12,4 +12,10 @@ class IndicatorPanel(bpy.types.Panel):
         layout = self.layout
         analyzer_settings = context.scene.analyzer_settings
         layout.prop(analyzer_settings,"type", text="Indicator method")
+
+        if analyzer_settings.type == "RATIODISTORTED":
+            row = layout.row(align=True)
+            row.prop(analyzer_settings,"path", text="Path")
+            row.operator("ui.file_selector", text="", icon="FILE_FOLDER")
+
     

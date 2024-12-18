@@ -83,6 +83,7 @@ import UI.meshSeparatorUI.MeshSeparatorPanel as MSP
 import UI.analyzerUI.AnalyzeButton as AAB
 import UI.analyzerUI.IndicatorPanel as AIP
 import UI.analyzerUI.AnalyzePanel as AAP
+import UI.analyzerUI.FileSelector as AFS
 classes = [
     PRS.ParametrizationSettings,
     ObjN.ObjectName,
@@ -128,6 +129,7 @@ classes = [
     DA.Analyzer,
     AS.AnalyzeSettings,
     AAB.AnalyzeButton,
+    AFS.FileSelector,
     AAP.AnalyzePanel,
     AIP.IndicatorPanel
 ]

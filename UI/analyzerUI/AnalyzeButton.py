@@ -7,5 +7,5 @@ class AnalyzeButton(bpy.types.Operator):
 
     def execute(self, context):
         analyzer_settings = context.scene.analyzer_settings
-        bpy.ops.uv.analyze(type=analyzer_settings.type)
+        bpy.ops.uv.analyze(type=analyzer_settings.type, path=analyzer_settings.path)
         return {"FINISHED"}

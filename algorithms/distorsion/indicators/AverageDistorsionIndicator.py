@@ -1,5 +1,6 @@
 from .IndicatorInterface import IndicatorInterface
 import bpy
+import io
 class AverageDistorsionIndicator(IndicatorInterface):
     @staticmethod
     def eigen_ratio(eigen_values: tuple[float, float])-> float:
@@ -7,7 +8,7 @@ class AverageDistorsionIndicator(IndicatorInterface):
         e_max = max(eigen_values)
         return e_max/e_min 
     @staticmethod
-    def evaluate(eigen_values_list: list[list[tuple[float, float]]], polygons: bpy.types.MeshPolygons) -> float:
+    def evaluate(eigen_values_list: list[list[tuple[float, float]]], polygons: bpy.types.MeshPolygons) -> float | io.BytesIO:
         total_area = 0
         average_distorsion = 0
         for eigen_values, polygon in zip(eigen_values_list, polygons):

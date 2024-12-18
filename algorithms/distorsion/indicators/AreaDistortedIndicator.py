@@ -1,5 +1,6 @@
 from .IndicatorInterface import IndicatorInterface
 import bpy
+import io
 class AreaDistortedIndicator(IndicatorInterface):
     @staticmethod
     def is_distorted(eigen_values: tuple[float, float])-> bool:
@@ -7,7 +8,7 @@ class AreaDistortedIndicator(IndicatorInterface):
         e_max = max(eigen_values)
         return e_max/e_min != 1
     @staticmethod
-    def evaluate(eigen_values_list: list[list[tuple[float, float]]], polygons: bpy.types.MeshPolygons) -> float:
+    def evaluate(eigen_values_list: list[list[tuple[float, float]]], polygons: bpy.types.MeshPolygons) -> float | io.BytesIO:
         total_area = 0
         distorted_area = 0
         for eigen_values, polygon in zip(eigen_values_list, polygons):
