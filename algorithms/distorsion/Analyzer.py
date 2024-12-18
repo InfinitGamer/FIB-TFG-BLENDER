@@ -37,7 +37,11 @@ class Analyzer(bpy.types.Operator):
     path: bpy.props.StringProperty()
 
     exportable_indicators = set(["RATIODISTORTED"])
-    
+    indicators = {
+            "AVERAGEDISTORTION": AverageDistorsionIndicator,
+            "AREADISTORTED": AreaDistortedIndicator,
+            "RATIODISTORTED": RatioDistortedIndicator,
+        }
     @staticmethod
     def is_exportable_type(type: str) -> bool:
         return type in Analyzer.exportable_indicators
@@ -188,12 +192,8 @@ class Analyzer(bpy.types.Operator):
     def execute(self, context):
 
         obj = context.active_object
-        map = {
-            "AVERAGEDISTORTION": AverageDistorsionIndicator,
-            "AREADISTORTED": AreaDistortedIndicator,
-            "RATIODISTORTED": RatioDistortedIndicator,
-        }
-        indicator = map.get(self.type)
+        
+        indicator = Analyzer.indicators.get(self.type)
         try:
 
             score = Analyzer.analyze(obj, indicator)

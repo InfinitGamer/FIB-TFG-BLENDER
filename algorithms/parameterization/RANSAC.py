@@ -18,6 +18,12 @@ class RANSAC(bpy.types.Operator):
     density: bpy.props.FloatProperty(default=1.0, min=0.0)
     verbose: bpy.props.BoolProperty(default=False)
 
+    models = [("Sphere", md.SphereModel), ("Cylinder", md.CylinderModel)]
+    functions = {
+        "Sphere": bpy.ops.uv.sphere_project,
+        "Cylinder": bpy.ops.uv.cylinder_project,
+    }
+
     @staticmethod
     def get_points_from_triangle(
         A: tuple[float, float, float],
@@ -115,11 +121,7 @@ class RANSAC(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.object.mode_set(mode="OBJECT")
 
-        models = [("Sphere", md.SphereModel), ("Cylinder", md.CylinderModel)]
-        functions = {
-            "Sphere": bpy.ops.uv.sphere_project,
-            "Cylinder": bpy.ops.uv.cylinder_project,
-        }
+        
 
         objects: list[bpy.types.Object] = context.selected_objects
         for obj in objects:
@@ -139,7 +141,7 @@ class RANSAC(bpy.types.Operator):
 
             min_error = float("inf")
             best_model = None
-            for type, model in models:
+            for type, model in RANSAC.models:
                 result, _ = RANSAC.RANSAC(
                     vertices, model, self.iterations, self.verbose
                 )
@@ -147,7 +149,7 @@ class RANSAC(bpy.types.Operator):
                     min_error = result
                     best_model = type
 
-            func = functions[best_model]
+            func = RANSAC.functions[best_model]
 
             if self.verbose:
                 print(f"Se aplica {best_model}")
