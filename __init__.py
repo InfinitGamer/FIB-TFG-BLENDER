@@ -1,18 +1,22 @@
 import bpy
 import sys
 import os
-import subprocess
 import pkg_resources
-#installing dependencies
+import pip
 
+
+
+#installing dependencies
+#run as administrator in order to install packages
 modules_to_need ={
-    'numpy'
+    'numpy',
+    'matplotlib'
 }
 installed = {pkg.key for pkg in pkg_resources.working_set}
 missing = modules_to_need - installed
-if missing:
-    python = sys.executable
-    subprocess.check_call([python, '-m', 'pip', 'install', *missing], stdout=subprocess.DEVNULL)
+target = (sys.exec_prefix) + '\\lib\\site-packages'
+for i in missing:
+    pip.main(['install', i, '--target', target])
     
 
 
