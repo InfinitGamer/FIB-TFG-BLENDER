@@ -8,7 +8,7 @@ class RatioDistortedIndicator(IndicatorInterface):
     def eigen_ratio(eigen_values: tuple[float, float])-> float:
         e_min = min(eigen_values)
         e_max = max(eigen_values)
-        return e_max/e_min 
+        return round(e_max/e_min, 5) 
     @staticmethod
     def evaluate(eigen_values_list: list[list[tuple[float, float]]], polygons: bpy.types.MeshPolygons) -> float | io.BytesIO:
         dict = defaultdict(float)
@@ -30,7 +30,8 @@ class RatioDistortedIndicator(IndicatorInterface):
                 d1 = RatioDistortedIndicator.eigen_ratio(eigen_value1)
 
                 dict[d1] +=1
-
+                
+        dict = defaultdict(float, sorted(dict.items()))
         keys = list(dict.keys())
         valores = list(dict.values())
         plt.figure(figsize=(50, 10))
