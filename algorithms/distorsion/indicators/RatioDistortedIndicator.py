@@ -3,6 +3,7 @@ from collections import defaultdict
 import bpy
 import io
 import matplotlib.pyplot as plt
+import math as m
 class RatioDistortedIndicator(IndicatorInterface):
     @staticmethod
     def eigen_ratio(eigen_values: tuple[float, float])-> float:
@@ -30,11 +31,12 @@ class RatioDistortedIndicator(IndicatorInterface):
                 d1 = RatioDistortedIndicator.eigen_ratio(eigen_value1)
 
                 dict[d1] +=1
-                
+
         dict = defaultdict(float, sorted(dict.items()))
         keys = list(dict.keys())
         valores = list(dict.values())
-        plt.figure(figsize=(50, 10))
+        
+        plt.figure(figsize=(m.ceil(len(keys)*0.65), 10))
         # Crear el gráfico de barras
         plt.bar(range(len(keys)), valores)
 
