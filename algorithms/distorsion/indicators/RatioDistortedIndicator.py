@@ -33,16 +33,16 @@ class RatioDistortedIndicator(IndicatorInterface):
 
         keys = list(dict.keys())
         valores = list(dict.values())
-
+        plt.figure(figsize=(50, 10))
         # Crear el gráfico de barras
         plt.bar(range(len(keys)), valores)
 
         # Personalizar el gráfico
-        plt.xticks(range(len(keys)), [str(key) for key in keys])
+        plt.xticks(range(len(keys)), [str(key) for key in keys],rotation= 45)
         plt.xlabel('Ratio')
         plt.ylabel('Número de caras')
         plt.title('Frecuencia por cada ratio')
-
+        plt.tight_layout()
         # Guardar el gráfico en una variable en memoria
         imagen_memoria = io.BytesIO()
         plt.savefig(imagen_memoria, format='png')

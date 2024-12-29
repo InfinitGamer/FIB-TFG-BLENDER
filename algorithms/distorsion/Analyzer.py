@@ -70,10 +70,12 @@ class Analyzer(bpy.types.Operator):
 
         # aplicamos rotacion
         transformed_verts = [rotation_matrix @ vert for vert in verts]
+        
         # nos quedamos con la componente x e y
         final_verts = [
             mathutils.Vector((round(v.x, 5), round(v.y, 5))) for v in transformed_verts
         ]
+
         return final_verts
 
     @staticmethod
@@ -132,10 +134,6 @@ class Analyzer(bpy.types.Operator):
             uv1 = uv[0:3]
             tangent2 = [tangent_points[0]] + tangent_points[2:4]
             uv2 = [uv[0]] + uv[2:4]
-            print(tangent1)
-            print(uv1)
-            print(tangent2)
-            print(uv2)
 
             eigen_values1 = Analyzer.get_eigen_values(tangent1, uv1)
             eigen_values2 = Analyzer.get_eigen_values(tangent2, uv2)
@@ -198,7 +196,7 @@ class Analyzer(bpy.types.Operator):
 
             score = Analyzer.analyze(obj, indicator)
 
-            if isinstance(score, int):
+            if isinstance(score, float):
                 Analyzer.popup_message(context, f"The score is {score}")
             else:
 
