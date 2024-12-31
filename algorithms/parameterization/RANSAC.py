@@ -2,9 +2,10 @@ import bpy
 from typing import Type
 from algorithms.parameterization.models.ModelInterface import ModelInterface
 import algorithms.parameterization.models as md
-from math import sqrt
+from math import sqrt, radians
 from random import uniform
 import numpy as np
+from mathutils import Matrix
 
 
 
@@ -161,15 +162,26 @@ class RANSAC(bpy.types.Operator):
             bpy.ops.mesh.select_mode(type="FACE")
             bpy.ops.mesh.select_all(action="SELECT")
 
-            current_rotation = bpy.context.space_data.region_3d.view_rotation.copy()
+            current_rotation = context.space_data.region_3d.view_rotation.copy()
+            area_type = 'VIEW_3D'
+            areas  = [area for area in context.window.screen.areas if area.type == area_type]
 
-            # las posiciones se basan en la posción del viewport, por lo tanto, lo haremos las proyecciones de frente
-            bpy.ops.view3d.view_axis(type="FRONT")
+            with context.temp_override(
+                window=context.window,
+                area=areas[0],
+                region=[region for region in areas[0].regions if region.type == 'WINDOW'][0],
+                screen=context.window.screen
+            ):
 
-            func(scale_to_bounds=True)
+                # las posiciones se basan en la posción del viewport, por lo tanto, lo haremos las proyecciones de frente
+                rotation_matrix = Matrix.Rotation(radians(90),4,'X')
+                rotation_matrix = Matrix.Rotation(radians(90),4,'Z') @ rotation_matrix
+                context.space_data.region_3d.view_rotation = rotation_matrix.to_quaternion()
+                context.space_data.region_3d.update()
+                func(scale_to_bounds=True)
 
-            bpy.context.space_data.region_3d.view_rotation = current_rotation
-
+            context.space_data.region_3d.view_rotation = current_rotation
+            context.space_data.region_3d.update()
             bpy.ops.object.mode_set(mode="OBJECT")
 
         return {"FINISHED"}
