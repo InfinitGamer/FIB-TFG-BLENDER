@@ -2,7 +2,7 @@ import bpy
 class AnalyzePanel(bpy.types.Panel):
     bl_idname = "AnalyzePanel"
     bl_parent_id = "AddonPanel"
-    bl_label = "Analyze Panel"
+    bl_label = "Analyze settings"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FIB-TFG-BLENDER"
