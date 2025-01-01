@@ -63,11 +63,16 @@ class UpdateModificationsHandler:
 def execute(scene: bpy.types.Scene, despgraph: bpy.types.Depsgraph):
 
     communication_data: CommunicationData = scene.communication_data
-    if communication_data.baking_active or communication_data.switch_active:
+    checks = [
+        communication_data.baking_active,
+        communication_data.switch_active,
+        communication_data.mesh_separator_active,
+        communication_data.ransac_active
+    ]
+    if any(checks):
         return
     
     switch_settings: bpy.types.bpy_prop_collection = scene.switch_settings
-    scene_objects: bpy.types.SceneObjects = scene.objects
 
     # comprobamos modificaciones de objetos
     for update in despgraph.updates:

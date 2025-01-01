@@ -120,6 +120,7 @@ class RANSAC(bpy.types.Operator):
         return best_error, best_model
 
     def execute(self, context):
+        context.scene.communication_data.ransac_active = True
         bpy.ops.object.mode_set(mode="OBJECT")
 
         
@@ -184,4 +185,5 @@ class RANSAC(bpy.types.Operator):
             context.space_data.region_3d.update()
             bpy.ops.object.mode_set(mode="OBJECT")
 
+        context.scene.communication_data.ransac_active = False
         return {"FINISHED"}
