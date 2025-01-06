@@ -154,7 +154,7 @@ class RANSAC(bpy.types.Operator):
             func = RANSAC.functions[best_model]
 
             if self.verbose:
-                print(f"Se aplica {best_model}")
+                print(f"It applies {best_model}")
 
             new_uv_map = obj.data.uv_layers.new(name=f"{best_model}_projection_uv")
             obj.data.uv_layers.active = new_uv_map
