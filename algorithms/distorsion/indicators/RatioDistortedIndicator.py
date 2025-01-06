@@ -43,8 +43,8 @@ class RatioDistortedIndicator(IndicatorInterface):
         # Personalizar el gráfico
         plt.xticks(range(len(keys)), [str(key) for key in keys],rotation= 45)
         plt.xlabel('Ratio')
-        plt.ylabel('Número de caras')
-        plt.title('Frecuencia por cada ratio')
+        plt.ylabel('Number of faces')
+        plt.title('Frequency per ratio')
         plt.tight_layout()
         # Guardar el gráfico en una variable en memoria
         imagen_memoria = io.BytesIO()
