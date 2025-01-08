@@ -21,4 +21,4 @@ class DirectoryPanelAuto(bpy.types.Panel):
         path_settings = layout.row(align=True)
         path_settings.prop(autobake_settings, "path", text="Path")
 
-        path_settings.operator("ui.file_selector", text="", icon="FILE_FOLDER")
+        path_settings.operator("ui.folder_selector", text="", icon="FILE_FOLDER")

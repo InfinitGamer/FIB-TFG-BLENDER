@@ -2,9 +2,10 @@ import bpy
 from typing import Type
 from algorithms.parameterization.models.ModelInterface import ModelInterface
 import algorithms.parameterization.models as md
-from math import sqrt
+from math import sqrt, radians
 from random import uniform
 import numpy as np
+from mathutils import Matrix
 
 
 
@@ -17,6 +18,12 @@ class RANSAC(bpy.types.Operator):
     iterations: bpy.props.IntProperty(default=100, min=0)
     density: bpy.props.FloatProperty(default=1.0, min=0.0)
     verbose: bpy.props.BoolProperty(default=False)
+
+    models = [("Sphere", md.SphereModel), ("Cylinder", md.CylinderModel)]
+    functions = {
+        "Sphere": bpy.ops.uv.sphere_project,
+        "Cylinder": bpy.ops.uv.cylinder_project,
+    }
 
     @staticmethod
     def get_points_from_triangle(
@@ -113,13 +120,10 @@ class RANSAC(bpy.types.Operator):
         return best_error, best_model
 
     def execute(self, context):
+        context.scene.communication_data.ransac_active = True
         bpy.ops.object.mode_set(mode="OBJECT")
 
-        models = [("Sphere", md.SphereModel), ("Cylinder", md.CylinderModel)]
-        functions = {
-            "Sphere": bpy.ops.uv.sphere_project,
-            "Cylinder": bpy.ops.uv.cylinder_project,
-        }
+        
 
         objects: list[bpy.types.Object] = context.selected_objects
         for obj in objects:
@@ -139,7 +143,7 @@ class RANSAC(bpy.types.Operator):
 
             min_error = float("inf")
             best_model = None
-            for type, model in models:
+            for type, model in RANSAC.models:
                 result, _ = RANSAC.RANSAC(
                     vertices, model, self.iterations, self.verbose
                 )
@@ -147,10 +151,10 @@ class RANSAC(bpy.types.Operator):
                     min_error = result
                     best_model = type
 
-            func = functions[best_model]
+            func = RANSAC.functions[best_model]
 
             if self.verbose:
-                print(f"Se aplica {best_model}")
+                print(f"It applies {best_model}")
 
             new_uv_map = obj.data.uv_layers.new(name=f"{best_model}_projection_uv")
             obj.data.uv_layers.active = new_uv_map
@@ -159,15 +163,27 @@ class RANSAC(bpy.types.Operator):
             bpy.ops.mesh.select_mode(type="FACE")
             bpy.ops.mesh.select_all(action="SELECT")
 
-            current_rotation = bpy.context.space_data.region_3d.view_rotation.copy()
+            current_rotation = context.space_data.region_3d.view_rotation.copy()
+            area_type = 'VIEW_3D'
+            areas  = [area for area in context.window.screen.areas if area.type == area_type]
 
-            # las posiciones se basan en la posción del viewport, por lo tanto, lo haremos las proyecciones de frente
-            bpy.ops.view3d.view_axis(type="FRONT")
+            with context.temp_override(
+                window=context.window,
+                area=areas[0],
+                region=[region for region in areas[0].regions if region.type == 'WINDOW'][0],
+                screen=context.window.screen
+            ):
 
-            func(scale_to_bounds=True)
+                # las posiciones se basan en la posción del viewport, por lo tanto, lo haremos las proyecciones de frente
+                rotation_matrix = Matrix.Rotation(radians(90),4,'X')
+                rotation_matrix = Matrix.Rotation(radians(90),4,'Z') @ rotation_matrix
+                context.space_data.region_3d.view_rotation = rotation_matrix.to_quaternion()
+                context.space_data.region_3d.update()
+                func(scale_to_bounds=True)
 
-            bpy.context.space_data.region_3d.view_rotation = current_rotation
-
+            context.space_data.region_3d.view_rotation = current_rotation
+            context.space_data.region_3d.update()
             bpy.ops.object.mode_set(mode="OBJECT")
 
+        context.scene.communication_data.ransac_active = False
         return {"FINISHED"}

@@ -2,7 +2,7 @@ import bpy
 
 
 class FolderSelector(bpy.types.Operator):
-    bl_idname = "ui.file_selector"
+    bl_idname = "ui.folder_selector"
     bl_label = "Select Folder"
 
     # Temporary property to hold the folder path during selection

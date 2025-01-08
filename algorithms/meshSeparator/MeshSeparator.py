@@ -130,6 +130,7 @@ class MeshSeparator(bpy.types.Operator):
         MeshSeparator.separate_by_seams(object)
 
     def execute(self, context):
+        context.scene.communication_data.mesh_separator_active = True
         active_object: bpy.types.Object = context.active_object
 
         try:
@@ -137,5 +138,5 @@ class MeshSeparator(bpy.types.Operator):
             self.report({"INFO"}, "Mesh separated successfully")
         except Exception as e:
             self.report({"ERROR"}, str(e))
-
+        context.scene.communication_data.mesh_separator_active = False
         return {"FINISHED"}

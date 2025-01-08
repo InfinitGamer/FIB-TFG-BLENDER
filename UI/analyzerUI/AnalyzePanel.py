@@ -1,16 +1,14 @@
 import bpy
-
-class MeshSeparatorPanel(bpy.types.Panel):
-    bl_idname = "MeshSeparatorPanel"
+class AnalyzePanel(bpy.types.Panel):
+    bl_idname = "AnalyzePanel"
     bl_parent_id = "AddonPanel"
-    bl_label = "Mesh Separator settings"
+    bl_label = "Analyze settings"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FIB-TFG-BLENDER"
     bl_options = {"DEFAULT_CLOSED"}
-
-
+    
     def draw(self, context):
         layout = self.layout
-        layout.operator("ui.mesh_separator", text="Separate")
+        layout.operator("ui.analyze_button",text="Analyze")
         

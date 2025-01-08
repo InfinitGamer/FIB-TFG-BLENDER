@@ -33,27 +33,22 @@ class SetAutomaticSettings(bpy.types.Operator):
     automatic_setting_number: bpy.props.IntProperty(min=1)
 
     def execute(self, context):
-
-        # extraemos escena
+    
         scene = context.scene
-
-        # extraemos los ajustes del autobake
+        
         autobake_settings = scene.autobake_settings
-
-        # si no tiene una GPU configurada, utilizará la GPU, sino la CPU
+  
         autobake_settings.device = (
             "GPU"
             if context.preferences.addons["cycles"].preferences.has_active_device()
             else "CPU"
         )
 
-        # asignamos los auto los valores por que se met
         autobake_settings.width = self.width
         autobake_settings.height = self.height
         autobake_settings.margin = self.margin
         autobake_settings.margin_type = self.margin_type
 
-        # asignamos el boton que ha hecho la acción
         scene.UIbake_settings.automatic_setting_number = self.automatic_setting_number
 
         return {"FINISHED"}
