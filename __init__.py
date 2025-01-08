@@ -3,7 +3,7 @@ import sys
 import os
 import pkg_resources
 import pip
-
+from pathlib import Path
 
 
 #installing dependencies
@@ -14,9 +14,9 @@ modules_to_need ={
 }
 installed = {pkg.key for pkg in pkg_resources.working_set}
 missing = modules_to_need - installed
-target = (sys.exec_prefix) + '\\lib\\site-packages'
+target = Path(sys.exec_prefix) / 'lib/site-packages'
 for i in missing:
-    pip.main(['install', i, '--target', target])
+    pip.main(['install', i, '--target', str(target)])
     
 
 
