@@ -190,6 +190,9 @@ class Analyzer(bpy.types.Operator):
     def execute(self, context):
 
         obj = context.active_object
+        if Analyzer.is_exportable_type(self.type) and self.path in [None, ""]:
+            self.report({"ERROR_INVALID_INPUT"},"Exportable indicator must have a path to export")
+            return {"FINISHED"}
         
         indicator = Analyzer.indicators.get(self.type)
         try:

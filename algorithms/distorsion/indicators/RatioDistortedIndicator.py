@@ -3,7 +3,7 @@ from collections import defaultdict
 import bpy
 import io
 import matplotlib.pyplot as plt
-import math as m
+import numpy as np
 class RatioDistortedIndicator(IndicatorInterface):
     @staticmethod
     def eigen_ratio(eigen_values: tuple[float, float])-> float:
@@ -33,15 +33,23 @@ class RatioDistortedIndicator(IndicatorInterface):
                 dict[d1] +=1
 
         dict = defaultdict(float, sorted(dict.items()))
-        keys = list(dict.keys())
-        valores = list(dict.values())
         
-        plt.figure(figsize=(m.ceil(len(keys)*0.65), 10))
+        points = [key for key, val in dict.items() for _ in range(int(np.ceil(val)))]
+        
+        q75, q25 = np.percentile(points, [75, 25])
+        iqr = q75 - q25
+        h = 2 * iqr / (len(points) ** (1/3))
+        max_v = max(points)
+        min_v = min(points)
+        range_fd = max_v - min_v
+        
+        n_bins = np.ceil(range_fd / h)
+        
         # Crear el gráfico de barras
-        plt.bar(range(len(keys)), valores)
-
+        plt.hist(points, bins=int(n_bins), color='b')
+        
         # Personalizar el gráfico
-        plt.xticks(range(len(keys)), [str(key) for key in keys],rotation= 45)
+        plt.xticks(np.arange(min_v, max_v, 0.2))
         plt.xlabel('Ratio')
         plt.ylabel('Number of faces')
         plt.title('Frequency per ratio')
