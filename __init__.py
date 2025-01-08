@@ -26,7 +26,7 @@ bl_info = {
     "author": "Jeremy Comino",
     "version": (0, 2, 0),
     "blender": (4, 2, 0),
-    "description": "Auto Bake",
+    "description": "Final project that automatize Bake, create a parametrization analyzer and a gives a RANSAC parametrization generator",
     "category": "Development",
 }
 
