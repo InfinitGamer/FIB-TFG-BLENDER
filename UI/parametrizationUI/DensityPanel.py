@@ -9,13 +9,17 @@ class DensityPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
+
         scene = context.scene
         parametrization_settings = scene.parametrization_settings
+
         layout = self.layout
         margin = layout.row()
+        
         split = margin.split(factor=0.25)
         split.label(text="Density:")
         split.prop(parametrization_settings, "density", text="", )
+
         row2 = layout.row()
         row2.label(text="Tooltip: The density is expressed in points/u^2")
         

@@ -6,6 +6,7 @@ class SetAutomaticSettings(bpy.types.Operator):
     bl_label = "Set automatic settings"
     bl_options = {"REGISTER"}
 
+    # parameters
     device: bpy.props.EnumProperty(
         items=[
             ("GPU", "Gpu", "GPU Device"),

@@ -12,16 +12,9 @@ class BakeTypePanelAuto(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        # cogemos la escena actual
         scene = context.scene
 
-        # cogemos los settings del autobake
         autobake_settings = scene.autobake_settings
-
-        # cogemos los elementos para la UI de bake
-        UIbake_settings = scene.UIbake_settings
-
-        # creamos selector del tipo del bake
 
         property_settings = layout.row()
         property_settings.prop(autobake_settings, "bake_type", text="Bake Type")

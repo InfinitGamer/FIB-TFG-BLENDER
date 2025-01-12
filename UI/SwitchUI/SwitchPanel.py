@@ -11,6 +11,7 @@ class SwitchPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
+        
         layout = self.layout
         scene = context.scene
         layout.operator(

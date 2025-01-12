@@ -12,21 +12,15 @@ class BakeTypePanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        # cogemos la escena actual
+        
         scene = context.scene
-
-        # cogemos los settings del autobake
         autobake_settings = scene.autobake_settings
-
-        # cogemos los elementos para la UI de bake
-        UIbake_settings = scene.UIbake_settings
-
-        # creamos selector del tipo del bake
 
         property_settings = layout.row()
         property_settings.prop(autobake_settings, "bake_type", text="Bake Type")
 
         pass_filter_values = ["COMBINED", "GLOSSY", "DIFFUSE"]
+        
         if autobake_settings.bake_type in pass_filter_values:
             pass_filter = layout.column()
             pass_filter.label(text="Lighting")

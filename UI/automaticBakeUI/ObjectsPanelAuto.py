@@ -1,4 +1,3 @@
-from UI.manualBakeUI.ObjectsPanel import ObjectsPanel
 import bpy
 
 
@@ -14,11 +13,9 @@ class ObjectsPanelAuto(bpy.types.Panel):
         layout = self.layout
         
         scene = context.scene
-
         
         autobake_settings = scene.autobake_settings
 
-        
         UIbake_settings = scene.UIbake_settings
         
         column_object_list = layout.column()

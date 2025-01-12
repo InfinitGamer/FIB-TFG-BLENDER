@@ -11,10 +11,9 @@ class ImageDimensionsPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        # cogemos la escena actual
+        
         scene = context.scene
 
-        # cogemos los settings del autobake
         autobake_settings = scene.autobake_settings
 
         width_settings = layout.row()

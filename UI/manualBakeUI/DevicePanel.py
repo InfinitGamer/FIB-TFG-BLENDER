@@ -11,11 +11,10 @@ class DevicePanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        # cogemos la escena actual
+        
         scene = context.scene
-
-        # cogemos los settings del autobake
+        
         autobake_settings = scene.autobake_settings
-        # eleccion del device
+        
         device_settings = layout.row()
         device_settings.prop(autobake_settings, "device", text="Device")

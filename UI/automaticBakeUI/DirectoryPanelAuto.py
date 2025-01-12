@@ -11,13 +11,11 @@ class DirectoryPanelAuto(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        # cogemos la escena actual
+        
         scene = context.scene
 
-        # cogemos los settings del autobake
         autobake_settings = scene.autobake_settings
 
-        # selector de directorio
         path_settings = layout.row(align=True)
         path_settings.prop(autobake_settings, "path", text="Path")
 

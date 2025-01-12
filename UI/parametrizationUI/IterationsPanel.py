@@ -10,9 +10,12 @@ class IterationsPanel(bpy.types.Panel):
 
     def draw(self, context):
         scene = context.scene
+
         parametrization_settings = scene.parametrization_settings
+
         layout = self.layout
         margin = layout.row()
+        
         split = margin.split(factor=0.3)
         split.label(text="Iterations:")
         split.prop(parametrization_settings, "iterations", text="")

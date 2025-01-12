@@ -33,7 +33,7 @@ bl_info = {
 # Obtener la ruta del directorio del addon
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 
-# Agregar la ruta al sys.path
+# Agregar la ruta al sys.path para detectar todos los modulos
 sys.path.append(ADDON_FOLDER_PATH)
 
 import algorithms.baking.BakingAutomatization as BK
@@ -175,7 +175,7 @@ def unregister():
     del bpy.types.Scene.autobake_settings
     del bpy.types.Scene.UIbake_settings
 
-    for cls in reversed(classes):  # Desregistrar en orden inverso
+    for cls in reversed(classes):  # importante desregistrar en orden inverso
         bpy.utils.unregister_class(cls)
 
 

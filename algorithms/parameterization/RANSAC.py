@@ -8,12 +8,13 @@ import numpy as np
 from mathutils import Matrix
 
 
-
 class RANSAC(bpy.types.Operator):
+
     bl_idname = "uv.auto_projection"
     bl_label = "Auto Projection RANSAC algorithm"
     bl_description = "Description that shows in blender tooltips"
     bl_options = {"REGISTER"}
+
     # parameters
     iterations: bpy.props.IntProperty(default=100, min=0)
     density: bpy.props.FloatProperty(default=1.0, min=0.0)
@@ -32,18 +33,24 @@ class RANSAC(bpy.types.Operator):
         C: tuple[float, float, float],
         n: int,
     ):
+
         point_list: list[tuple[float, float, float]] = []
+
         A_list = list(A)
         B_list = list(B)
         C_list = list(C)
+
         for _ in range(0, n):
+
             c_a = uniform(0.0, 1.0)
             c_b = uniform(0.0, 1 - c_a)
             c_c = 1 - c_a - c_b
+
             point = (
                 c_a * np.array(A_list) + c_b * np.array(B_list) + c_c * np.array(C_list)
             )
             point = tuple(point)
+
             point_list.append(point)
 
         return point_list
@@ -60,23 +67,29 @@ class RANSAC(bpy.types.Operator):
         mid = n // 2
         partial1 = RANSAC.get_points_from_triangle(A, B, C, mid)
         partial2 = RANSAC.get_points_from_triangle(A, C, D, n - mid)
+
         return partial1 + partial2
 
     @staticmethod
     def super_sampling(object: bpy.types.Object, density: float = 0):
+
         point_list: list[tuple[float, float, float]] = []
 
         for polygon in object.data.polygons:
+
             area = polygon.area
             number_points = int(area * density)
+
             list_vertices = [
                 tuple(object.data.vertices[index].co) for index in polygon.vertices
             ]
+
             if len(list_vertices) == 3:
                 partial_list = RANSAC.get_points_from_triangle(
                     *list_vertices, number_points
                 )
                 point_list.extend(partial_list)
+
             elif len(list_vertices) == 4:
                 partial_list = RANSAC.get_points_from_square(
                     *list_vertices, number_points
@@ -97,10 +110,11 @@ class RANSAC(bpy.types.Operator):
         best_model = None
 
         for i in range(iterations):
+
             if verbose:
                 print(f"Iteration {i}")
-            try:
 
+            try:
                 elements = ClassModel.get_points(data)
 
                 model = ClassModel.fit(elements)
@@ -112,21 +126,23 @@ class RANSAC(bpy.types.Operator):
                 if error < best_error:
                     best_error = error
                     best_model = model
+
                 if verbose:
                     print(f"Current Error: {best_error}")
+
             except Exception as e:
                 print(e)
 
         return best_error, best_model
 
     def execute(self, context):
+
         context.scene.communication_data.ransac_active = True
         bpy.ops.object.mode_set(mode="OBJECT")
 
-        
-
         objects: list[bpy.types.Object] = context.selected_objects
         for obj in objects:
+
             bpy.ops.object.select_all(action="DESELECT")
 
             if obj.type != "MESH":
@@ -137,16 +153,20 @@ class RANSAC(bpy.types.Operator):
             bpy.context.view_layer.objects.active = obj
 
             mesh: bpy.types.Mesh = obj.data
+
             vertices = [tuple(v.co) for v in mesh.vertices]
             density_points = RANSAC.super_sampling(obj, self.density)
             vertices = vertices + density_points
 
             min_error = float("inf")
             best_model = None
+
             for type, model in RANSAC.models:
+
                 result, _ = RANSAC.RANSAC(
                     vertices, model, self.iterations, self.verbose
                 )
+
                 if result < min_error:
                     min_error = result
                     best_model = type
@@ -164,21 +184,28 @@ class RANSAC(bpy.types.Operator):
             bpy.ops.mesh.select_all(action="SELECT")
 
             current_rotation = context.space_data.region_3d.view_rotation.copy()
-            area_type = 'VIEW_3D'
-            areas  = [area for area in context.window.screen.areas if area.type == area_type]
+            area_type = "VIEW_3D"
+            areas = [
+                area for area in context.window.screen.areas if area.type == area_type
+            ]
 
             with context.temp_override(
                 window=context.window,
                 area=areas[0],
-                region=[region for region in areas[0].regions if region.type == 'WINDOW'][0],
-                screen=context.window.screen
+                region=[
+                    region for region in areas[0].regions if region.type == "WINDOW"
+                ][0],
+                screen=context.window.screen,
             ):
 
-                # las posiciones se basan en la posción del viewport, por lo tanto, lo haremos las proyecciones de frente
-                rotation_matrix = Matrix.Rotation(radians(90),4,'X')
-                rotation_matrix = Matrix.Rotation(radians(90),4,'Z') @ rotation_matrix
-                context.space_data.region_3d.view_rotation = rotation_matrix.to_quaternion()
+                # las posiciones se basan en la posción del viewport, por lo tanto, haremos las proyecciones de frente
+                rotation_matrix = Matrix.Rotation(radians(90), 4, "X")
+                rotation_matrix = Matrix.Rotation(radians(90), 4, "Z") @ rotation_matrix
+                context.space_data.region_3d.view_rotation = (
+                    rotation_matrix.to_quaternion()
+                )
                 context.space_data.region_3d.update()
+
                 func(scale_to_bounds=True)
 
             context.space_data.region_3d.view_rotation = current_rotation
