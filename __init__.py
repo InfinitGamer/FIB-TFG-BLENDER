@@ -3,7 +3,7 @@ import sys
 import os
 import pkg_resources
 import pip
-
+from pathlib import Path
 
 
 #installing dependencies
@@ -14,9 +14,9 @@ modules_to_need ={
 }
 installed = {pkg.key for pkg in pkg_resources.working_set}
 missing = modules_to_need - installed
-target = (sys.exec_prefix) + '\\lib\\site-packages'
+target = Path(sys.exec_prefix) / 'lib/site-packages'
 for i in missing:
-    pip.main(['install', i, '--target', target])
+    pip.main(['install', i, '--target', str(target)])
     
 
 
@@ -26,14 +26,14 @@ bl_info = {
     "author": "Jeremy Comino",
     "version": (0, 2, 0),
     "blender": (4, 2, 0),
-    "description": "Auto Bake",
+    "description": "Final project that automatize Bake, create a parametrization analyzer and a gives a RANSAC parametrization generator",
     "category": "Development",
 }
 
 # Obtener la ruta del directorio del addon
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 
-# Agregar la ruta al sys.path
+# Agregar la ruta al sys.path para detectar todos los modulos
 sys.path.append(ADDON_FOLDER_PATH)
 
 import algorithms.baking.BakingAutomatization as BK
@@ -175,7 +175,7 @@ def unregister():
     del bpy.types.Scene.autobake_settings
     del bpy.types.Scene.UIbake_settings
 
-    for cls in reversed(classes):  # Desregistrar en orden inverso
+    for cls in reversed(classes):  # importante desregistrar en orden inverso
         bpy.utils.unregister_class(cls)
 
 

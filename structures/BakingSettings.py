@@ -18,6 +18,7 @@ class BakingSettings(bpy.types.PropertyGroup):
         ],
         default="COMBINED",
     )
+
     device: bpy.props.EnumProperty(
         items=[
             ("GPU", "Gpu", "GPU Device"),
@@ -25,6 +26,7 @@ class BakingSettings(bpy.types.PropertyGroup):
         ],
         default="CPU",
     )
+
     width: bpy.props.IntProperty(min=1, default=1, subtype="PIXEL")
 
     height: bpy.props.IntProperty(min=1, default=1, subtype="PIXEL")
@@ -41,6 +43,7 @@ class BakingSettings(bpy.types.PropertyGroup):
             ("EXTEND", "Extend", "Extend border pixels outwards"),
         ]
     )
+    
     path: bpy.props.StringProperty()
 
     use_direct: bpy.props.BoolProperty(default=True)

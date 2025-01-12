@@ -9,6 +9,7 @@ class SwitchOperator(bpy.types.Operator):
     )
     bl_options = {"REGISTER"}
 
+    # parameters
     switch: bpy.props.BoolProperty()
 
     def execute(self, context):
@@ -18,6 +19,7 @@ class SwitchOperator(bpy.types.Operator):
         info = scene.switch_settings
 
         for model_info in info:
+            
             if model_info.is_valid:
                 model: bpy.types.Object = scene.objects[model_info.name]
 

@@ -19,4 +19,5 @@ class AnalyzeSettings(bpy.types.PropertyGroup):
         ],
         default="AREADISTORTED",
     )
+   
    path: bpy.props.StringProperty()

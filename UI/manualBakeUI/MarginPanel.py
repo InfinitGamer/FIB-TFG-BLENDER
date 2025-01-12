@@ -12,13 +12,10 @@ class MarginPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        # cogemos la escena actual
         scene = context.scene
-
-        # cogemos los settings del autobake
+        
         autobake_settings = scene.autobake_settings
 
-        # seleccion del margin
         margin_type = layout.row()
         margin_type.prop(autobake_settings, "margin_type", text="Margin Type")
 

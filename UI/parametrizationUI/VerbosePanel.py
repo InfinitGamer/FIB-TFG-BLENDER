@@ -11,5 +11,6 @@ class VerbosePanel(bpy.types.Panel):
     def draw(self, context):
         scene = context.scene
         parametrization_settings = scene.parametrization_settings
+        
         layout = self.layout
         layout.prop(parametrization_settings, "verbose", text="verbose")

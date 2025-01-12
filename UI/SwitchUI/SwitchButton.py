@@ -12,4 +12,5 @@ class SwitchButton(bpy.types.Operator):
 
         bpy.ops.scene.bake_switch('INVOKE_DEFAULT', switch=(not switch))
         context.scene.UIswitch_settings.switch = not switch
+        
         return {"FINISHED"}
