@@ -52,6 +52,7 @@ class RatioDistortedIndicator(IndicatorInterface):
 
         n_bins = np.ceil(range_fd / h)
 
+        plt.figure(figsize=(2*n_bins, 4))
         plt.hist(points, bins=int(n_bins), color="b")
 
         plt.xticks(np.arange(min_v, max_v, 0.2))
